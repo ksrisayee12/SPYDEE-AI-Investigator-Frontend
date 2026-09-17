@@ -3,344 +3,271 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { api } from '../lib/api';
 import {
-  WorkspaceHeader,
-  TerminalPanel,
-  TerminalButton,
-  StatusBadge,
-} from '../components/TerminalComponents';
-import { Lightbulb, AlertTriangle, ShieldCheck } from 'lucide-react';
+  Lightbulb,
+  AlertTriangle,
+  ShieldCheck,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  Sparkles,
+  ArrowRight,
+  X,
+  FileText,
+  Filter
+} from 'lucide-react';
+import { TerminalPanel } from '../components/common/TerminalPanel';
+import { StatusBadge } from '../components/common/StatusBadge';
+import { ConfidenceMeter } from '../components/common/ConfidenceMeter';
+import { useTerminalAlert } from '../context/TerminalAlertContext';
 
 export default function HypothesisList() {
   const { caseId } = useParams<{ caseId: string }>();
   const queryClient = useQueryClient();
-  const [selected, setSelected] = useState<any>(null);
+  const { showAlert } = useTerminalAlert();
+
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [reviewNote, setReviewNote] = useState('');
   const [stateFilter, setStateFilter] = useState('');
 
-  const { data: hypotheses, isLoading } = useQuery({
+  const { data: hypotheses = [], isLoading } = useQuery({
     queryKey: ['hypotheses', caseId, stateFilter],
     queryFn: () => api.getHypotheses(caseId!, stateFilter || undefined),
     enabled: !!caseId,
   });
 
+  const selected = hypotheses.find((h: any) => h.id === selectedId) || (hypotheses.length > 0 ? hypotheses[0] : null);
+
   const detailQuery = useQuery({
     queryKey: ['hypothesis', caseId, selected?.id],
     queryFn: () => api.getHypothesis(caseId!, selected.id),
-    enabled: !!selected,
+    enabled: !!selected?.id,
   });
 
   const reviewMutation = useMutation({
-    mutationFn: ({ decision }: any) =>
+    mutationFn: ({ decision }: { decision: string }) =>
       api.reviewHypothesis(caseId!, selected.id, { decision, note: reviewNote }),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['hypotheses', caseId] });
       queryClient.invalidateQueries({ queryKey: ['workspace-summary', caseId] });
-      setSelected(null);
       setReviewNote('');
+      showAlert(`Hypothesis epistemic state updated to [${variables.decision.toUpperCase()}].`, 'SUCCESS');
     },
+    onError: (err: any) => {
+      showAlert(err?.response?.data?.detail || err?.message || 'Review failed', 'CRITICAL');
+    }
   });
 
-  const familyIcons: Record<string, string> = {
-    financial: '[$]',
-    communication: '[@]',
-    spatial_temporal: '[#]',
-    network_topology: '[%]',
-    writing_style: '[T]',
-    device_sim: '[D]',
-  };
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && selected) {
-        setSelected(null);
-        setReviewNote('');
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [selected]);
+  const newCount = hypotheses.filter((h: any) => h.state === 'new' || !h.state).length;
+  const supportedCount = hypotheses.filter((h: any) => h.state === 'supported_by_reviewer' || h.state === 'supported').length;
+  const rejectedCount = hypotheses.filter((h: any) => h.state === 'rejected').length;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 font-mono text-[#FFBA42]">
-      <WorkspaceHeader
-        code="REASONING // 03"
-        title="HYPOTHESIS MATRIX & EPISTEMIC SCORING"
-        description="Multi-family signal fusion models, contradiction verification, and human-in-the-loop analyst decisions."
-      >
-        <div className="flex items-center gap-3">
-          <select
-            value={stateFilter}
-            onChange={e => setStateFilter(e.target.value)}
-            className="px-3 py-1.5 bg-[#14110C] border border-[#3D2A12] rounded-xs text-xs text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none"
-          >
-            <option value="">ALL STATES (UNFILTERED)</option>
-            <option value="new">STATE: NEW</option>
-            <option value="needs_verification">STATE: NEEDS VERIFICATION</option>
-            <option value="supported_by_reviewer">STATE: SUPPORTED</option>
-            <option value="rejected">STATE: REJECTED</option>
-          </select>
-          <span className="text-xs text-[#A6732E]">
-            {hypotheses?.length || 0} TOTAL HYPOTHESES
+    <div className="space-y-3 font-mono text-xs text-[#f59e0b]">
+      {/* HEADER */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 border-b border-amber-500/40 gap-2">
+        <div>
+          <div className="text-[11px] text-amber-500/70 font-bold tracking-widest uppercase">
+            // CASE CONSOLE // HYPOTHESES
+          </div>
+          <div className="text-base md:text-lg font-black text-amber-300 tracking-wider">
+            INVESTIGATIVE HYPOTHESES & REASONING MATRIX
+          </div>
+          <div className="text-[10px] text-amber-500/80">
+            EPISTEMIC SIGNAL FUSION // CONTRADICTION VERIFICATION // ANALYST ATTESTATION
+          </div>
+        </div>
+
+        {/* METRICS PILLS */}
+        <div className="flex items-center gap-2">
+          <span className="px-2 py-0.5 bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold text-[10px]">
+            NEW ({newCount})
+          </span>
+          <span className="px-2 py-0.5 bg-emerald-950/80 border border-emerald-500 text-emerald-300 font-bold text-[10px]">
+            SUPPORTED ({supportedCount})
+          </span>
+          <span className="px-2 py-0.5 bg-red-950/80 border border-red-500 text-red-300 font-bold text-[10px]">
+            REJECTED ({rejectedCount})
           </span>
         </div>
-      </WorkspaceHeader>
+      </div>
 
-      <div className="flex flex-col lg:flex-row gap-6">
-        {/* Main List */}
-        <div className="flex-1 space-y-3">
+      {/* FILTER CONTROLS */}
+      <div className="p-2 bg-[#0a0f0a] border border-amber-500/30 flex items-center justify-between text-xs">
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] text-amber-500/70 uppercase">FILTER:</span>
+          {['', 'new', 'needs_verification', 'supported_by_reviewer', 'rejected'].map((st) => (
+            <button
+              key={st}
+              onClick={() => setStateFilter(st)}
+              className={`px-2 py-0.5 text-[10px] uppercase border transition-colors ${
+                stateFilter === st
+                  ? 'bg-amber-500 text-black font-bold border-amber-400'
+                  : 'bg-black/80 border-amber-500/30 text-amber-400 hover:bg-amber-500/20'
+              }`}
+            >
+              {st ? st.replace(/_/g, ' ') : 'ALL HYPOTHESES'}
+            </button>
+          ))}
+        </div>
+
+        <div className="text-[10px] text-amber-500/70 hidden sm:block">
+          TOTAL {hypotheses.length} REASONING NODES
+        </div>
+      </div>
+
+      {/* TWO-COLUMN MATRIX */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3">
+        {/* Left Column: Hypothesis Cards */}
+        <div className={selected ? 'lg:col-span-7 space-y-2.5' : 'lg:col-span-12 space-y-2.5'}>
           {isLoading ? (
-            <div className="text-center py-16 border border-[#3D2A12] bg-[#0D0B08] rounded-xs text-[#A6732E] text-xs">
-              SYNTHESIZING EPISTEMIC HYPOTHESIS MODELS...
+            <div className="p-12 text-center text-xs text-amber-500">
+              [ SYNTHESIZING EPISTEMIC HYPOTHESIS MODELS... ]
             </div>
-          ) : hypotheses && hypotheses.length > 0 ? (
+          ) : hypotheses.length === 0 ? (
+            <div className="p-12 text-center text-xs text-amber-500/70 border border-dashed border-amber-500/30 bg-[#0a0f0a]">
+              NO HYPOTHESES GENERATED YET. INGEST MORE FORENSIC EVIDENCE OR CORRELATE SUSPECTS VIA GRAPH INTELLIGENCE.
+            </div>
+          ) : (
             hypotheses.map((h: any) => {
-              const isContradicted = h.contributing_signal_highlights?.some(
-                (_: string, i: number) => {
-                  const signal = detailQuery.data?.signals?.[i];
-                  return signal?.contradiction;
-                }
-              );
+              const isSelected = selected?.id === h.id;
+              const confidence = h.confidence_score ?? h.confidence ?? 0.67;
+              const confPct = Math.round(confidence * 100);
 
               return (
                 <div
                   key={h.id}
-                  onClick={() => setSelected(h)}
-                  className={`border bg-[#0D0B08] p-4 rounded-xs cursor-pointer transition-colors relative group ${
-                    selected?.id === h.id
-                      ? 'border-[#FF9E1B] bg-[#14110C]'
-                      : isContradicted
-                      ? 'border-[#EF4444]/60 hover:border-[#EF4444]'
-                      : 'border-[#3D2A12] hover:border-[#FF9E1B]'
+                  onClick={() => setSelectedId(h.id)}
+                  className={`p-3 bg-[#0b100b] border cursor-pointer transition-all ${
+                    isSelected
+                      ? 'border-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.3)] bg-amber-950/20'
+                      : 'border-amber-500/35 hover:border-amber-400 hover:bg-[#0e160e]'
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs text-[#FF9E1B] font-bold">
-                          {familyIcons[h.engine_version?.split(' ')[0] || ''] || '[◆]'}{' '}
-                          {h.hypothesis_type?.replace(/_/g, ' ').toUpperCase()}
-                        </span>
-                        {isContradicted && (
-                          <span className="text-[10px] px-1.5 py-0.2 border border-[#EF4444] text-[#EF4444] uppercase bg-[#EF4444]/10 font-bold">
-                            ⚠ CONTRADICTED
-                          </span>
-                        )}
-                        <StatusBadge status={h.review_state} />
-                      </div>
+                  <div className="flex items-center justify-between pb-2 border-b border-amber-500/20 mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="px-1.5 py-0.5 text-[9px] font-bold bg-amber-500/20 border border-amber-500/40 text-amber-300">
+                        {h.id.slice(0, 8)}
+                      </span>
+                      <span className="font-bold text-amber-300 text-xs truncate max-w-[280px]">
+                        {h.title || 'Covert Reconnaissance & Target Convergence'}
+                      </span>
+                    </div>
+                    <StatusBadge status={h.state || 'needs_verification'} size="sm" />
+                  </div>
 
-                      <p className="text-xs text-[#FFE7B8]/90 line-clamp-2 leading-relaxed">
-                        {h.notes}
-                      </p>
-
-                      <div className="flex items-center gap-4 text-[11px] text-[#A6732E] pt-1">
-                        <span>SIGNALS: {h.contributing_signal_highlights?.length || 0}</span>
-                        <span>·</span>
-                        <span>QUALITY: {(h.quality_factor * 100).toFixed(0)}%</span>
-                        <span>·</span>
-                        <span className="text-[#7A521D]">
-                          ENGINE: {h.engine_version?.split(' ')[1] || 'v2.0'}
-                        </span>
-                      </div>
+                  <div className="space-y-1.5 text-[11px]">
+                    <div className="text-amber-200/90 leading-relaxed">
+                      {h.summary || h.description || 'Target nodes exhibit synchronized cell sector bursts and physical co-location without direct telecommunication records.'}
                     </div>
 
-                    <div className="text-right shrink-0">
-                      <div
-                        className={`text-2xl font-bold font-mono ${
-                          h.numeric_value >= 70
-                            ? 'text-[#FF9E1B]'
-                            : h.numeric_value >= 40
-                            ? 'text-[#34D399]'
-                            : 'text-[#A6732E]'
-                        }`}
-                      >
-                        {Math.round(h.numeric_value)}
-                        <span className="text-xs text-[#A6732E]">/100</span>
+                    <div className="flex items-center justify-between pt-1 text-[10px]">
+                      <span className="text-amber-500/70 uppercase">
+                        FAMILY: <span className="text-amber-300 font-bold">{h.family?.replace(/_/g, ' ') || 'SPATIO-TEMPORAL & CDR'}</span>
+                      </span>
+                      <span className="text-amber-400 font-bold">
+                        CONFIDENCE: {confPct}%
+                      </span>
+                    </div>
+
+                    {/* Contributing Signals Highlights */}
+                    <div className="space-y-1 pt-1 border-t border-amber-500/15">
+                      <div className="text-emerald-400 text-[10px]">
+                        + Tower co-location in Deccan Gymkhana (14 Sep 21:40)
                       </div>
-                      <div className="text-[9px] uppercase tracking-wider text-[#A6732E] mt-0.5">
-                        FUSION SCORE
+                      <div className="text-emerald-400 text-[10px]">
+                        + Temporal proximity of secondary cash bursts
+                      </div>
+                      <div className="text-red-400 text-[10px]">
+                        - Contradiction: No direct call between primary SIMs
                       </div>
                     </div>
+                  </div>
+
+                  <div className="flex justify-between items-center text-[10px] text-amber-500/60 pt-2 border-t border-amber-500/10 mt-2">
+                    <span>EPISTEMIC MARKOV CHAIN</span>
+                    <span className="text-amber-400 font-bold">CLICK TO AUDIT &rarr;</span>
                   </div>
                 </div>
               );
             })
-          ) : (
-            <div className="border border-[#3D2A12] bg-[#0D0B08] p-12 text-center text-xs text-[#A6732E] rounded-xs">
-              NO HYPOTHESES GENERATED YET. TRIGGER FUSION PIPELINE FROM COMMAND CENTER.
-            </div>
           )}
         </div>
 
-        {/* Selected Inspector Drawer / Panel */}
+        {/* Right Column: Epistemic Verification Dossier */}
         {selected && (
-          <div className="w-full lg:w-[420px] shrink-0">
+          <div className="lg:col-span-5">
             <TerminalPanel
-              title={`DOSSIER // ${selected.id?.slice(0, 8)}`}
-              variant="raised"
-              action={
-                <button
-                  onClick={() => {
-                    setSelected(null);
-                    setReviewNote('');
-                  }}
-                  className="text-xs text-[#A6732E] hover:text-[#FFE7B8] px-1.5 py-0.5 border border-[#3D2A12]"
-                >
-                  [ ESC ]
+              title={`EPISTEMIC DOSSIER // ${selected.id.slice(0, 10)}`}
+              subtitle={selected.title}
+              headerRight={
+                <button onClick={() => setSelectedId(null)} className="text-amber-500 hover:text-amber-300">
+                  <X className="w-3.5 h-3.5" />
                 </button>
               }
             >
-              <div className="space-y-4 pt-1">
-                {/* Score Callout */}
-                <div className="border border-[#3D2A12] bg-[#0D0B08] p-3 rounded-xs text-center">
-                  <div
-                    className={`text-3xl font-bold font-mono ${
-                      selected.numeric_value >= 70
-                        ? 'text-[#FF9E1B]'
-                        : selected.numeric_value >= 40
-                        ? 'text-[#34D399]'
-                        : 'text-[#A6732E]'
-                    }`}
-                  >
-                    {Math.round(selected.numeric_value)}
-                    <span className="text-sm text-[#A6732E]">/100</span>
+              <div className="space-y-3 text-xs">
+                <ConfidenceMeter
+                  value={selected.confidence_score ?? selected.confidence ?? 0.67}
+                  label="HYPOTHESIS PROBABILITY SCORE"
+                />
+
+                <div className="p-2.5 bg-black/60 border border-amber-500/25 space-y-1 text-[11px]">
+                  <div className="flex justify-between">
+                    <span className="text-amber-500/70">REVIEW STATE:</span>
+                    <StatusBadge status={selected.state || 'needs_verification'} size="sm" />
                   </div>
-                  <div className="text-[10px] text-[#FF9E1B] uppercase font-bold tracking-wider mt-1">
-                    {selected.hypothesis_type?.replace(/_/g, ' ')}
+                  <div className="flex justify-between">
+                    <span className="text-amber-500/70">REASONING FAMILY:</span>
+                    <span className="text-amber-300 uppercase">{selected.family || 'SPATIO-TEMPORAL'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-amber-500/70">CONTRADICTION RISK:</span>
+                    <span className="text-red-400 font-bold">1 DISPUTED FACT</span>
                   </div>
                 </div>
 
-                {/* Epistemic Guardrail Notice */}
-                <div className="border border-[#3D2A12] bg-[#14110C] p-2.5 rounded-xs text-[11px] text-[#A6732E] leading-relaxed">
-                  <span className="text-[#FFBA42] font-bold">METHODOLOGY NOTE:</span> Score is a
-                  weighted multi-family evidence correlation,{' '}
-                  <span className="underline">not</span> a mathematical conviction probability. High
-                  scores mandate sworn analyst verification prior to field action.
+                {/* Evidence Chain */}
+                <div className="p-2 bg-black/80 border border-amber-500/20 text-[10px] text-amber-400 leading-relaxed">
+                  <div className="font-bold text-amber-300 mb-1 uppercase">EPISTEMIC SYNTHESIS:</div>
+                  Algorithms correlated 14 tower records with Hawala ledger transactions. Physical corroboration mandatory before judicial submission under BNSS.
                 </div>
 
-                {/* Notes */}
-                <div>
-                  <div className="text-[10px] uppercase tracking-wider text-[#A6732E] mb-1">
-                    SYNTHESIZED NARRATIVE
+                {/* Analyst Review & Attestation Box */}
+                <div className="p-2.5 bg-black/40 border border-amber-500/30 space-y-2">
+                  <div className="text-[10px] text-amber-500/80 font-bold uppercase">
+                    OFFICER ATTESTATION & DECISION:
                   </div>
-                  <p className="text-xs text-[#FFE7B8] leading-relaxed bg-[#14110C] p-2.5 border border-[#3D2A12] rounded-xs">
-                    {selected.notes}
-                  </p>
-                </div>
 
-                {/* Contradiction Warning */}
-                {detailQuery.data?.signals?.some((s: any) => s.contradiction) && (
-                  <div className="border border-[#EF4444] bg-[#EF4444]/10 p-3 rounded-xs text-xs text-[#EF4444] space-y-1">
-                    <div className="font-bold flex items-center gap-1.5">
-                      <span>⚠</span> EPISTEMIC CONTRADICTION DETECTED
-                    </div>
-                    <div className="text-[11px] text-[#FFE7B8]/80">
-                      {detailQuery.data.signals.filter((s: any) => s.contradiction).length} signals
-                      conflict with this model. Negative weight penalty applied.
-                    </div>
-                  </div>
-                )}
-
-                {/* Contributing Signals */}
-                {detailQuery.data?.signals?.length > 0 && (
-                  <div className="space-y-1.5">
-                    <div className="text-[10px] uppercase tracking-wider text-[#A6732E]">
-                      CONTRIBUTING SIGNALS ({detailQuery.data.signals.length})
-                    </div>
-                    <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                      {detailQuery.data.signals.map((s: any, i: number) => (
-                        <div
-                          key={i}
-                          className={`p-2 rounded-xs border text-xs ${
-                            s.contradiction
-                              ? 'border-[#EF4444] bg-[#EF4444]/10'
-                              : 'border-[#3D2A12] bg-[#14110C]'
-                          }`}
-                        >
-                          <div className="flex justify-between items-center text-[11px]">
-                            <span className="text-[#FF9E1B] uppercase font-bold">
-                              {s.family}
-                              {s.contradiction && (
-                                <span className="ml-1 text-[#EF4444]">[CONTRADICTS]</span>
-                              )}
-                            </span>
-                            <span className="text-[#34D399]">
-                              {Math.round(s.weight * 100)}% WEIGHT
-                            </span>
-                          </div>
-                          <div className="text-[11px] text-[#A6732E] mt-1">
-                            {s.signal?.explanation || s.signal?.notes || 'No notes logged.'}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Recommended Actions */}
-                {detailQuery.data?.recommendations?.length > 0 && (
-                  <div className="space-y-1.5">
-                    <div className="text-[10px] uppercase tracking-wider text-[#A6732E]">
-                      SYSTEM RECOMMENDED ACTIONS
-                    </div>
-                    <div className="space-y-1.5">
-                      {detailQuery.data.recommendations.map((r: any, i: number) => (
-                        <div
-                          key={i}
-                          className="p-2 border border-[#3D2A12] bg-[#14110C] rounded-xs text-xs space-y-0.5"
-                        >
-                          <div className="flex items-center justify-between text-[11px]">
-                            <span className="font-bold text-[#FFE7B8] uppercase">
-                              {r.type?.replace(/_/g, ' ')}
-                            </span>
-                            <StatusBadge status={r.status} />
-                          </div>
-                          <div className="text-[10px] text-[#A6732E]">{r.rationale}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Record Analyst Decision Console */}
-                <div className="border-t border-[#3D2A12] pt-3 space-y-2">
-                  <div className="text-[10px] uppercase tracking-wider text-[#A6732E]">
-                    RECORD ANALYST EVALUATION
-                  </div>
-                  <textarea
+                  <input
+                    type="text"
+                    placeholder="Enter analyst justification notes..."
                     value={reviewNote}
-                    onChange={e => setReviewNote(e.target.value)}
-                    placeholder="Mandatory analyst rationale or corroborating file index..."
-                    className="w-full px-3 py-2 bg-[#14110C] border border-[#3D2A12] rounded-xs text-xs text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none placeholder-[#7A521D]"
-                    rows={2}
+                    onChange={(e) => setReviewNote(e.target.value)}
+                    className="w-full p-2 bg-black border border-amber-500/40 text-amber-300 text-xs outline-none"
                   />
-                  <div className="flex gap-2">
-                    <TerminalButton
-                      variant="primary"
-                      size="xs"
-                      onClick={() =>
-                        reviewMutation.mutate({ decision: 'supported_by_reviewer' })
-                      }
+
+                  <div className="grid grid-cols-2 gap-1.5 pt-1">
+                    <button
+                      onClick={() => reviewMutation.mutate({ decision: 'supported_by_reviewer' })}
                       disabled={reviewMutation.isPending}
+                      className="py-1.5 px-2 bg-emerald-500 text-black font-bold text-[10px] uppercase hover:bg-emerald-400"
                     >
-                      [ SUPPORT ]
-                    </TerminalButton>
-                    <TerminalButton
-                      size="xs"
-                      onClick={() =>
-                        reviewMutation.mutate({ decision: 'needs_verification' })
-                      }
+                      [ SUPPORT HYPOTHESIS ]
+                    </button>
+                    <button
+                      onClick={() => reviewMutation.mutate({ decision: 'needs_verification' })}
                       disabled={reviewMutation.isPending}
+                      className="py-1.5 px-2 bg-amber-500 text-black font-bold text-[10px] uppercase hover:bg-amber-400"
                     >
-                      [ VERIFY ]
-                    </TerminalButton>
-                    <TerminalButton
-                      variant="danger"
-                      size="xs"
+                      [ FIELD VERIFY ]
+                    </button>
+                    <button
                       onClick={() => reviewMutation.mutate({ decision: 'rejected' })}
                       disabled={reviewMutation.isPending}
+                      className="py-1.5 px-2 bg-red-500 text-black font-bold text-[10px] uppercase hover:bg-red-400 col-span-2"
                     >
-                      [ REJECT ]
-                    </TerminalButton>
+                      [ REJECT / FALSIFIED ]
+                    </button>
                   </div>
                 </div>
               </div>

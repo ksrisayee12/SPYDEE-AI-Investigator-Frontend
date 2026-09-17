@@ -1,114 +1,107 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --terminal-bg: #080705;
-  --terminal-panel: #0D0B08;
-  --terminal-border: #3D2A12;
-  --amber-primary: #FF9E1B;
-  --amber-bright: #FFBA42;
-  --amber-dim: #996515;
+@layer base {
+  :root {
+    --terminal-bg: #090e09;
+    --terminal-panel: #0d140d;
+    --terminal-amber: #f59e0b;
+    --terminal-amber-bright: #fbbf24;
+    --terminal-amber-dim: #92400e;
+    --terminal-green: #34d399;
+    --terminal-red: #ef4444;
+  }
+
+  body {
+    font-family: 'JetBrains Mono', 'Share Tech Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    background-color: #080c08;
+    color: #f59e0b;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+  }
 }
 
-body {
-  background-color: #080705;
-  color: #FFBA42;
-  font-family: 'IBM Plex Mono', 'Courier New', monospace;
-  letter-spacing: -0.01em;
-  overflow-x: hidden;
-}
-
-/* Subtle CRT Scanline overlay effect - digital display only */
-.crt-screen {
-  position: relative;
-}
-
-.crt-screen::before {
-  content: " ";
-  display: block;
-  position: fixed;
-  top: 0; left: 0; bottom: 0; right: 0;
-  background: linear-gradient(rgba(18, 14, 8, 0) 50%, rgba(0, 0, 0, 0.28) 50%);
-  background-size: 100% 3px;
-  z-index: 999;
+/* Authentic subtle scanlines (non-intrusive) */
+.scanlines {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.28) 50%
+  ), 
+  linear-gradient(
+    90deg,
+    rgba(255, 140, 0, 0.02),
+    rgba(0, 255, 100, 0.01),
+    rgba(0, 100, 255, 0.01)
+  );
+  background-size: 100% 3px, 6px 100%;
   pointer-events: none;
-  opacity: 0.6;
 }
 
-.crt-screen::after {
-  content: " ";
-  display: block;
-  position: fixed;
-  top: 0; left: 0; bottom: 0; right: 0;
-  background: radial-gradient(circle at 50% 50%, rgba(255, 158, 27, 0.015) 0%, rgba(0, 0, 0, 0.3) 100%);
-  pointer-events: none;
-  z-index: 998;
-}
-
-/* Phosphor Amber glow effects */
+/* Subtle phosphor terminal glow */
 .amber-glow {
-  text-shadow: 0 0 4px rgba(255, 158, 27, 0.45);
+  text-shadow: 0 0 5px rgba(245, 158, 11, 0.55), 0 0 10px rgba(245, 158, 11, 0.25);
 }
 
 .amber-box-glow {
-  box-shadow: 0 0 10px rgba(255, 158, 27, 0.18), inset 0 0 6px rgba(255, 158, 27, 0.06);
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.2), inset 0 0 8px rgba(245, 158, 11, 0.05);
 }
 
-.green-box-glow {
-  box-shadow: 0 0 8px rgba(52, 211, 153, 0.2);
+.amber-box-glow-strong {
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.4), inset 0 0 12px rgba(245, 158, 11, 0.15);
 }
 
-/* Technical inputs and controls */
-input, textarea, select {
-  background-color: #0D0B08;
-  color: #FFE7B8;
-  border: 1px solid #3D2A12;
-  border-radius: 2px;
-  font-family: 'IBM Plex Mono', monospace;
+/* Subtle CRT corner curvature vignette (pure software, no hardware monitor) */
+.crt-vignette {
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.85);
+  pointer-events: none;
 }
 
-input:focus, textarea:focus, select:focus {
-  outline: none;
-  border-color: #FF9E1B;
-  box-shadow: 0 0 6px rgba(255, 158, 27, 0.3);
-}
-
-input::placeholder, textarea::placeholder {
-  color: #7A521D;
-}
-
-*:focus-visible {
-  outline: 1px solid #FF9E1B;
-  outline-offset: 1px;
-}
-
-*:focus:not(:focus-visible) {
-  outline: none;
-}
-
-/* Monospace Amber Scrollbar */
+/* Custom terminal scrollbars */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #080705;
+  background: #090e09;
+  border-left: 1px solid rgba(245, 158, 11, 0.2);
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #3D2A12;
-  border: 1px solid #14110C;
+  background: #78350f;
+  border: 1px solid #d97706;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: #66451B;
+  background: #b45309;
 }
 
-::selection {
-  background: #FF9E1B;
-  color: #080705;
+/* Technical pulse animations */
+@keyframes radar-sweep {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-radar {
+  animation: radar-sweep 6s linear infinite;
+}
+
+@keyframes terminal-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.terminal-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  background-color: #f59e0b;
+  animation: terminal-blink 1s step-end infinite;
+  vertical-align: middle;
+  margin-left: 2px;
 }
