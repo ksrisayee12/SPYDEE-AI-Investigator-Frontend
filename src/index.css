@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #07100D;
+  color: #D8E5DC;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+input, textarea, select {
+  background-color: #0F1D18;
+  color: #D8E5DC;
+  border: 1px solid #27453A;
+  border-radius: 2px;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: #FFB84D;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #6F887A;
+}
+
+*:focus-visible {
+  outline: 1px solid #FFB84D;
+  outline-offset: 2px;
+}
+
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0B1713;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27453A;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3C6653;
+}
+
+::selection {
+  background: rgba(255, 184, 77, 0.25);
+  color: #FFD27A;
+}
