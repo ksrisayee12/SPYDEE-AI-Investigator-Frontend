@@ -8,6 +8,7 @@ import {
   TerminalButton,
   StatusBadge,
 } from '../components/TerminalComponents';
+import { Compass, CheckSquare, AlertCircle } from 'lucide-react';
 
 type Tab = 'leads' | 'gaps' | 'actions';
 
@@ -100,7 +101,6 @@ export default function LeadsPage() {
         title: createForm.title,
         description: createForm.description || undefined,
         lead_id: createForm.lead_id || undefined,
-        related_evidence_refs: [],
       }),
     onSuccess: () => {
       invalidate();
@@ -113,7 +113,6 @@ export default function LeadsPage() {
     mutationFn: () =>
       api.createAction(caseId!, {
         title: createForm.title,
-        description: createForm.description || undefined,
         proposed_step: createForm.proposed_step || undefined,
         expected_information: createForm.expected_information || undefined,
         gap_id: createForm.gap_id || undefined,
@@ -127,63 +126,56 @@ export default function LeadsPage() {
   });
 
   const updateTypeMutation = useMutation({
-    mutationFn: ({ kind, id, data }: any) =>
-      kind === 'lead'
-        ? api.updateLead(caseId!, id, data)
-        : api.updateAction(caseId!, id, data),
+    mutationFn: ({ kind, id, data }: any) => {
+      if (kind === 'gap') return api.updateGap(caseId!, id, data);
+      return api.updateAction(caseId!, id, data);
+    },
     onSuccess: () => {
       invalidate();
     },
   });
 
-  const updateGapMutation = useMutation({
-    mutationFn: ({ id, data }: any) => api.updateGap(caseId!, id, data),
-    onSuccess: () => {
-      invalidate();
-    },
-  });
-
-  const tabs: { key: Tab; label: string; count?: number }[] = [
-    { key: 'leads', label: 'LEAD TRACKER', count: leadsQ.data?.length },
-    { key: 'gaps', label: 'INFORMATION GAPS', count: gapsQ.data?.length },
-    { key: 'actions', label: 'TACTICAL ACTIONS', count: actionsQ.data?.length },
+  const tabs: { id: Tab; label: string; count?: number }[] = [
+    { id: 'leads', label: 'INVESTIGATIVE LEADS', count: leadsQ.data?.length },
+    { id: 'gaps', label: 'EPISTEMIC GAPS', count: gapsQ.data?.length },
+    { id: 'actions', label: 'DISPATCHED ACTIONS', count: actionsQ.data?.length },
   ];
 
-  const createButtonLabel =
-    tab === 'leads' ? '+ NEW LEAD' : tab === 'gaps' ? '+ LOG GAP' : '+ DISPATCH ACTION';
-
   return (
-    <div className="max-w-6xl mx-auto space-y-6 font-mono text-[#D8E5DC]">
+    <div className="max-w-6xl mx-auto space-y-6 font-mono text-[#FFBA42]">
       <WorkspaceHeader
-        code="TRACKING // 05"
-        title="LEADS, GAPS & TACTICAL ACTIONS"
-        description="Prioritized investigation tasks, operational subpoenas, and intelligence blindspot records."
+        code="OPS // 06"
+        title="LEADS & ACTION DISPATCH MATRIX"
+        description="Information gaps, subpoena execution targets, physical reconnaissance, and investigative tasking."
       >
         <div className="flex items-center gap-3">
           <TerminalButton
             variant="primary"
             onClick={() => setShowCreate(!showCreate)}
           >
-            {showCreate ? '[ CANCEL ]' : createButtonLabel}
+            {showCreate ? '[ CANCEL ]' : `+ NEW ${tab === 'gaps' ? 'GAP' : tab === 'leads' ? 'LEAD' : 'ACTION'}`}
           </TerminalButton>
         </div>
       </WorkspaceHeader>
 
-      {/* Terminal tab row */}
-      <div className="flex border-b border-[#27453A] gap-2 pb-px">
+      {/* Navigation tabs */}
+      <div className="flex border-b border-[#3D2A12] gap-1">
         {tabs.map(t => (
           <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={`px-4 py-2 text-xs font-bold border-b-2 transition-colors flex items-center gap-2 ${
-              tab === t.key
-                ? 'border-[#FFB84D] text-[#FFB84D] bg-[#0F1D18]'
-                : 'border-transparent text-[#6F887A] hover:text-[#D8E5DC]'
+            key={t.id}
+            onClick={() => {
+              setTab(t.id);
+              setShowCreate(false);
+            }}
+            className={`px-4 py-2 text-xs font-bold transition-colors border-b-2 flex items-center gap-2 ${
+              tab === t.id
+                ? 'border-[#FF9E1B] text-[#FF9E1B] bg-[#14110C]'
+                : 'border-transparent text-[#A6732E] hover:text-[#FFE7B8]'
             }`}
           >
             <span>{t.label}</span>
             {t.count !== undefined && (
-              <span className="text-[10px] px-1.5 py-0.2 rounded-xs bg-[#07100D] border border-[#27453A] text-[#9FE3B1]">
+              <span className="text-[10px] px-1.5 py-0.2 rounded-xs bg-[#0D0B08] border border-[#3D2A12] text-[#FF9E1B]">
                 {t.count}
               </span>
             )}
@@ -201,27 +193,27 @@ export default function LeadsPage() {
         >
           <div className="space-y-3">
             <div>
-              <label className="block text-[10px] text-[#6F887A] uppercase tracking-wider mb-1">
+              <label className="block text-[10px] text-[#A6732E] uppercase tracking-wider mb-1">
                 ITEM TITLE / OBJECTIVE
               </label>
               <input
                 value={createForm.title}
                 onChange={e => setCreateForm({ ...createForm, title: e.target.value })}
                 placeholder="Subject description or task target..."
-                className="w-full px-3 py-2 bg-[#0B1713] border border-[#27453A] rounded-sm text-xs text-[#D8E5DC] focus:border-[#FFB84D] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#14110C] border border-[#3D2A12] rounded-xs text-xs text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none placeholder-[#7A521D]"
               />
             </div>
 
             {tab === 'actions' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] text-[#6F887A] uppercase tracking-wider mb-1">
+                  <label className="block text-[10px] text-[#A6732E] uppercase tracking-wider mb-1">
                     LINK TO LEAD (OPTIONAL)
                   </label>
                   <select
                     value={createForm.lead_id}
                     onChange={e => setCreateForm({ ...createForm, lead_id: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#0B1713] border border-[#27453A] rounded-sm text-xs text-[#D8E5DC] focus:border-[#FFB84D] focus:outline-none"
+                    className="w-full px-3 py-2 bg-[#14110C] border border-[#3D2A12] rounded-xs text-xs text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none"
                   >
                     <option value="">NO LINKED LEAD</option>
                     {(leadsQ.data || []).map((l: any) => (
@@ -232,13 +224,13 @@ export default function LeadsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] text-[#6F887A] uppercase tracking-wider mb-1">
+                  <label className="block text-[10px] text-[#A6732E] uppercase tracking-wider mb-1">
                     LINK TO GAP (OPTIONAL)
                   </label>
                   <select
                     value={createForm.gap_id}
                     onChange={e => setCreateForm({ ...createForm, gap_id: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#0B1713] border border-[#27453A] rounded-sm text-xs text-[#D8E5DC] focus:border-[#FFB84D] focus:outline-none"
+                    className="w-full px-3 py-2 bg-[#14110C] border border-[#3D2A12] rounded-xs text-xs text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none"
                   >
                     <option value="">NO LINKED GAP</option>
                     {(gapsQ.data || []).map((g: any) => (
@@ -253,13 +245,13 @@ export default function LeadsPage() {
 
             {tab === 'gaps' && (
               <div>
-                <label className="block text-[10px] text-[#6F887A] uppercase tracking-wider mb-1">
+                <label className="block text-[10px] text-[#A6732E] uppercase tracking-wider mb-1">
                   LINK TO PARENT LEAD (OPTIONAL)
                 </label>
                 <select
                   value={createForm.lead_id}
                   onChange={e => setCreateForm({ ...createForm, lead_id: e.target.value })}
-                  className="w-full px-3 py-2 bg-[#0B1713] border border-[#27453A] rounded-sm text-xs text-[#D8E5DC] focus:border-[#FFB84D] focus:outline-none"
+                  className="w-full px-3 py-2 bg-[#14110C] border border-[#3D2A12] rounded-xs text-xs text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none"
                 >
                   <option value="">NO LINKED LEAD</option>
                   {(leadsQ.data || []).map((l: any) => (
@@ -273,7 +265,7 @@ export default function LeadsPage() {
 
             {tab === 'leads' && (
               <div>
-                <label className="block text-[10px] text-[#6F887A] uppercase tracking-wider mb-1">
+                <label className="block text-[10px] text-[#A6732E] uppercase tracking-wider mb-1">
                   TACTICAL PRIORITY
                 </label>
                 <div className="flex gap-2">
@@ -281,10 +273,10 @@ export default function LeadsPage() {
                     <button
                       key={p}
                       onClick={() => setCreateForm({ ...createForm, priority: p })}
-                      className={`text-xs px-3 py-1.5 rounded-sm border uppercase font-bold transition-colors ${
+                      className={`text-xs px-3 py-1.5 rounded-xs border uppercase font-bold transition-colors ${
                         createForm.priority === p
-                          ? 'border-[#FFB84D] bg-[#FFB84D]/10 text-[#FFB84D]'
-                          : 'border-[#27453A] text-[#6F887A] hover:text-[#D8E5DC]'
+                          ? 'border-[#FF9E1B] bg-[#FF9E1B]/10 text-[#FF9E1B]'
+                          : 'border-[#3D2A12] text-[#A6732E] hover:text-[#FFE7B8]'
                       }`}
                     >
                       {p}
@@ -297,7 +289,7 @@ export default function LeadsPage() {
             {tab === 'actions' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] text-[#6F887A] uppercase tracking-wider mb-1">
+                  <label className="block text-[10px] text-[#A6732E] uppercase tracking-wider mb-1">
                     PROPOSED STEP / SUBPOENA SPEC
                   </label>
                   <input
@@ -306,11 +298,11 @@ export default function LeadsPage() {
                       setCreateForm({ ...createForm, proposed_step: e.target.value })
                     }
                     placeholder="e.g. Issue 2703(d) order to ISP for IP audit..."
-                    className="w-full px-3 py-2 bg-[#0B1713] border border-[#27453A] rounded-sm text-xs text-[#D8E5DC] focus:border-[#FFB84D] focus:outline-none"
+                    className="w-full px-3 py-2 bg-[#14110C] border border-[#3D2A12] rounded-xs text-xs text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none placeholder-[#7A521D]"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] text-[#6F887A] uppercase tracking-wider mb-1">
+                  <label className="block text-[10px] text-[#A6732E] uppercase tracking-wider mb-1">
                     EXPECTED DISCLOSURE / EVIDENCE
                   </label>
                   <input
@@ -322,21 +314,21 @@ export default function LeadsPage() {
                       })
                     }
                     placeholder="e.g. DHCP leases confirming physical router MAC"
-                    className="w-full px-3 py-2 bg-[#0B1713] border border-[#27453A] rounded-sm text-xs text-[#D8E5DC] focus:border-[#FFB84D] focus:outline-none"
+                    className="w-full px-3 py-2 bg-[#14110C] border border-[#3D2A12] rounded-xs text-xs text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none placeholder-[#7A521D]"
                   />
                 </div>
               </div>
             )}
 
             <div>
-              <label className="block text-[10px] text-[#6F887A] uppercase tracking-wider mb-1">
+              <label className="block text-[10px] text-[#A6732E] uppercase tracking-wider mb-1">
                 DESCRIPTION / SCOPE NOTES
               </label>
               <textarea
                 value={createForm.description}
                 onChange={e => setCreateForm({ ...createForm, description: e.target.value })}
                 placeholder="Supporting intelligence, rationale, or officer notes..."
-                className="w-full px-3 py-2 bg-[#0B1713] border border-[#27453A] rounded-sm text-xs text-[#D8E5DC] focus:border-[#FFB84D] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#14110C] border border-[#3D2A12] rounded-xs text-xs text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none placeholder-[#7A521D]"
                 rows={2}
               />
             </div>
@@ -373,7 +365,7 @@ export default function LeadsPage() {
             <select
               value={leadStatusFilter}
               onChange={e => setLeadStatusFilter(e.target.value)}
-              className="px-3 py-1.5 bg-[#0F1D18] border border-[#27453A] rounded-sm text-xs text-[#D8E5DC] focus:border-[#FFB84D] focus:outline-none"
+              className="px-3 py-1.5 bg-[#14110C] border border-[#3D2A12] rounded-xs text-xs text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none"
             >
               <option value="">ALL STATUSES</option>
               <option value="open">OPEN</option>
@@ -384,7 +376,7 @@ export default function LeadsPage() {
           </div>
 
           {leadsQ.isLoading ? (
-            <div className="text-center py-16 border border-[#27453A] bg-[#0B1713] rounded-sm text-[#6F887A] text-xs">
+            <div className="text-center py-16 border border-[#3D2A12] bg-[#0D0B08] rounded-xs text-[#A6732E] text-xs">
               LOADING LEADS MATRIX...
             </div>
           ) : leadsQ.data && leadsQ.data.length > 0 ? (
@@ -393,33 +385,33 @@ export default function LeadsPage() {
                 <div
                   key={l.id}
                   onClick={() => setSelectedLead(l)}
-                  className={`border bg-[#0B1713] hover:border-[#FFB84D] p-4 rounded-sm cursor-pointer transition-colors space-y-2 group ${
-                    selectedLead?.id === l.id ? 'border-[#FFB84D] bg-[#0F1D18]' : 'border-[#27453A]'
+                  className={`border bg-[#0D0B08] hover:border-[#FF9E1B] p-4 rounded-xs cursor-pointer transition-colors space-y-2 group ${
+                    selectedLead?.id === l.id ? 'border-[#FF9E1B] bg-[#14110C]' : 'border-[#3D2A12]'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-xs text-[#D8E5DC] group-hover:text-[#FFB84D] transition-colors">
+                        <span className="font-bold text-xs text-[#FFBA42] group-hover:text-[#FFE7B8] transition-colors">
                           {l.title}
                         </span>
                         <StatusBadge status={l.priority} />
                         <StatusBadge status={l.status} />
                       </div>
                       {l.description && (
-                        <p className="text-xs text-[#6F887A] leading-relaxed line-clamp-2">
+                        <p className="text-xs text-[#A6732E] leading-relaxed line-clamp-2">
                           {l.description}
                         </p>
                       )}
                     </div>
                     <div className="text-right shrink-0">
-                      <span className="text-[10px] text-[#6F887A] uppercase">
+                      <span className="text-[10px] text-[#A6732E] uppercase">
                         ORIGIN: {l.origin_type || 'MANUAL'}
                       </span>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 text-[11px] text-[#6F887A] pt-1 border-t border-[#27453A]/40">
+                  <div className="flex items-center gap-4 text-[11px] text-[#A6732E] pt-1 border-t border-[#3D2A12]/40">
                     <span>
                       SUPPORTING REFS: {l.supporting_evidence_refs?.length || 0}
                     </span>
@@ -427,7 +419,7 @@ export default function LeadsPage() {
                     <span>
                       CONFLICTING REFS: {l.conflicting_evidence_refs?.length || 0}
                     </span>
-                    <span className="ml-auto text-[#FFB84D] group-hover:translate-x-1 transition-transform">
+                    <span className="ml-auto text-[#FF9E1B] group-hover:translate-x-1 transition-transform">
                       OPEN DOSSIER ▶
                     </span>
                   </div>
@@ -435,7 +427,7 @@ export default function LeadsPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 border border-[#27453A] bg-[#0B1713] rounded-sm text-[#6F887A] text-xs">
+            <div className="text-center py-16 border border-[#3D2A12] bg-[#0D0B08] rounded-xs text-[#A6732E] text-xs">
               NO ACTIVE LEADS IN CURRENT REGISTRY.
             </div>
           )}
@@ -449,7 +441,7 @@ export default function LeadsPage() {
             <select
               value={gapStatusFilter}
               onChange={e => setGapStatusFilter(e.target.value)}
-              className="px-3 py-1.5 bg-[#0F1D18] border border-[#27453A] rounded-sm text-xs text-[#D8E5DC] focus:border-[#FFB84D] focus:outline-none"
+              className="px-3 py-1.5 bg-[#14110C] border border-[#3D2A12] rounded-xs text-xs text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none"
             >
               <option value="">ALL STATUSES</option>
               <option value="open">OPEN</option>
@@ -459,7 +451,7 @@ export default function LeadsPage() {
           </div>
 
           {gapsQ.isLoading ? (
-            <div className="text-center py-16 border border-[#27453A] bg-[#0B1713] rounded-sm text-[#6F887A] text-xs">
+            <div className="text-center py-16 border border-[#3D2A12] bg-[#0D0B08] rounded-xs text-[#A6732E] text-xs">
               LOADING INFORMATION GAPS...
             </div>
           ) : gapsQ.data && gapsQ.data.length > 0 ? (
@@ -467,33 +459,37 @@ export default function LeadsPage() {
               {gapsQ.data.map((g: any) => (
                 <div
                   key={g.id}
-                  className="border border-[#27453A] bg-[#0B1713] p-4 rounded-sm space-y-2"
+                  className="border border-[#3D2A12] bg-[#0D0B08] p-4 rounded-xs space-y-2"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-xs text-[#D8E5DC]">{g.title}</span>
+                        <span className="font-bold text-xs text-[#FFE7B8]">{g.title}</span>
                         <StatusBadge status={g.status} />
                       </div>
                       {g.description && (
-                        <p className="text-xs text-[#6F887A] leading-relaxed">
+                        <p className="text-xs text-[#A6732E] leading-relaxed">
                           {g.description}
                         </p>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 pt-2 border-t border-[#27453A]/40">
-                    <span className="text-[10px] text-[#6F887A] uppercase mr-2">
-                      MARK STATUS:
+                  <div className="flex items-center gap-2 pt-2 border-t border-[#3D2A12]/40 flex-wrap">
+                    <span className="text-[10px] text-[#A6732E] uppercase mr-2">
+                      TRANSITION STATUS:
                     </span>
                     {['open', 'addressed', 'dismissed'].map(s => (
                       <button
                         key={s}
                         onClick={() =>
-                          updateGapMutation.mutate({ id: g.id, data: { status: s } })
+                          updateTypeMutation.mutate({
+                            kind: 'gap',
+                            id: g.id,
+                            data: { status: s },
+                          })
                         }
-                        className="text-[10px] px-2 py-0.5 border border-[#27453A] bg-[#0F1D18] text-[#6F887A] hover:text-[#D8E5DC] hover:border-[#FFB84D] uppercase"
+                        className="text-[10px] px-2 py-0.5 border border-[#3D2A12] bg-[#14110C] text-[#A6732E] hover:text-[#FFE7B8] hover:border-[#FF9E1B] uppercase rounded-xs"
                       >
                         {s}
                       </button>
@@ -503,8 +499,8 @@ export default function LeadsPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 border border-[#27453A] bg-[#0B1713] rounded-sm text-[#6F887A] text-xs">
-              NO UNRESOLVED INFORMATION GAPS DETECTED.
+            <div className="text-center py-16 border border-[#3D2A12] bg-[#0D0B08] rounded-xs text-[#A6732E] text-xs">
+              NO ACTIVE INFORMATION GAPS RECORDED.
             </div>
           )}
         </div>
@@ -517,7 +513,7 @@ export default function LeadsPage() {
             <select
               value={actionStatusFilter}
               onChange={e => setActionStatusFilter(e.target.value)}
-              className="px-3 py-1.5 bg-[#0F1D18] border border-[#27453A] rounded-sm text-xs text-[#D8E5DC] focus:border-[#FFB84D] focus:outline-none"
+              className="px-3 py-1.5 bg-[#14110C] border border-[#3D2A12] rounded-xs text-xs text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none"
             >
               <option value="">ALL STATUSES</option>
               <option value="proposed">PROPOSED</option>
@@ -528,45 +524,44 @@ export default function LeadsPage() {
           </div>
 
           {actionsQ.isLoading ? (
-            <div className="text-center py-16 border border-[#27453A] bg-[#0B1713] rounded-sm text-[#6F887A] text-xs">
-              LOADING TASKED ACTIONS...
+            <div className="text-center py-16 border border-[#3D2A12] bg-[#0D0B08] rounded-xs text-[#A6732E] text-xs">
+              LOADING TACTICAL ACTION REGISTRY...
             </div>
           ) : actionsQ.data && actionsQ.data.length > 0 ? (
             <div className="space-y-3">
               {actionsQ.data.map((a: any) => (
                 <div
                   key={a.id}
-                  className="border border-[#27453A] bg-[#0B1713] p-4 rounded-sm space-y-2"
+                  className="border border-[#3D2A12] bg-[#0D0B08] p-4 rounded-xs space-y-2"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-xs text-[#D8E5DC]">{a.title}</span>
+                        <span className="font-bold text-xs text-[#FFE7B8]">{a.title}</span>
                         <StatusBadge status={a.status} />
                       </div>
                       {a.proposed_step && (
-                        <p className="text-xs text-[#D8E5DC]">
-                          <span className="text-[#FFB84D] font-bold">STEP:</span>{' '}
+                        <p className="text-xs text-[#FFBA42] leading-relaxed">
                           {a.proposed_step}
                         </p>
                       )}
                       {a.expected_information && (
-                        <p className="text-xs text-[#6F887A]">
-                          <span className="text-[#9FE3B1] font-bold">EXPECTED:</span>{' '}
+                        <p className="text-xs text-[#A6732E]">
+                          <span className="text-[#34D399] font-bold">EXPECTED:</span>{' '}
                           {a.expected_information}
                         </p>
                       )}
                       {a.outcome_notes && (
-                        <p className="text-xs text-[#6F887A]">
-                          <span className="text-[#FFD27A] font-bold">OUTCOME:</span>{' '}
+                        <p className="text-xs text-[#A6732E]">
+                          <span className="text-[#FFE7B8] font-bold">OUTCOME:</span>{' '}
                           {a.outcome_notes}
                         </p>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 pt-2 border-t border-[#27453A]/40 flex-wrap">
-                    <span className="text-[10px] text-[#6F887A] uppercase mr-2">
+                  <div className="flex items-center gap-2 pt-2 border-t border-[#3D2A12]/40 flex-wrap">
+                    <span className="text-[10px] text-[#A6732E] uppercase mr-2">
                       TRANSITION:
                     </span>
                     {['proposed', 'in_progress', 'completed', 'failed'].map(s => (
@@ -579,7 +574,7 @@ export default function LeadsPage() {
                             data: { status: s },
                           })
                         }
-                        className="text-[10px] px-2 py-0.5 border border-[#27453A] bg-[#0F1D18] text-[#6F887A] hover:text-[#D8E5DC] hover:border-[#FFB84D] uppercase"
+                        className="text-[10px] px-2 py-0.5 border border-[#3D2A12] bg-[#14110C] text-[#A6732E] hover:text-[#FFE7B8] hover:border-[#FF9E1B] uppercase rounded-xs"
                       >
                         {s.replace('_', ' ')}
                       </button>
@@ -589,7 +584,7 @@ export default function LeadsPage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 border border-[#27453A] bg-[#0B1713] rounded-sm text-[#6F887A] text-xs">
+            <div className="text-center py-16 border border-[#3D2A12] bg-[#0D0B08] rounded-xs text-[#A6732E] text-xs">
               NO TACTICAL ACTIONS DISPATCHED YET.
             </div>
           )}
@@ -603,20 +598,20 @@ export default function LeadsPage() {
           onClick={() => setSelectedLead(null)}
         >
           <div
-            className="border border-[#27453A] bg-[#07100D] rounded-sm max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 space-y-4 shadow-2xl relative"
+            className="border border-[#FF9E1B] bg-[#0D0B08] rounded-xs max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 space-y-4 shadow-2xl relative amber-box-glow"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex items-start justify-between border-b border-[#27453A] pb-3">
+            <div className="flex items-start justify-between border-b border-[#3D2A12] pb-3">
               <div>
-                <div className="text-sm font-bold text-[#D8E5DC] flex items-center gap-2">
-                  <span className="text-[#FFB84D]">LEAD //</span>
+                <div className="text-sm font-bold text-[#FFE7B8] flex items-center gap-2">
+                  <span className="text-[#FF9E1B]">LEAD //</span>
                   <span>{leadDetailQ.data.lead.title}</span>
                 </div>
                 <div className="flex gap-2 mt-2">
                   <select
                     value={leadDetailQ.data.lead.priority}
                     onChange={e => updateLeadMutation.mutate({ priority: e.target.value })}
-                    className="px-2 py-1 bg-[#0F1D18] border border-[#27453A] text-xs text-[#FFB84D] rounded-sm focus:outline-none"
+                    className="px-2 py-1 bg-[#14110C] border border-[#3D2A12] text-xs text-[#FF9E1B] rounded-xs focus:outline-none"
                   >
                     {['low', 'medium', 'high', 'critical'].map(p => (
                       <option key={p} value={p}>
@@ -627,7 +622,7 @@ export default function LeadsPage() {
                   <select
                     value={leadDetailQ.data.lead.status}
                     onChange={e => reviewLeadMutation.mutate({ decision: e.target.value })}
-                    className="px-2 py-1 bg-[#0F1D18] border border-[#27453A] text-xs text-[#9FE3B1] rounded-sm focus:outline-none"
+                    className="px-2 py-1 bg-[#14110C] border border-[#3D2A12] text-xs text-[#34D399] rounded-xs focus:outline-none"
                   >
                     {['open', 'in_progress', 'resolved', 'dismissed'].map(s => (
                       <option key={s} value={s}>
@@ -639,67 +634,67 @@ export default function LeadsPage() {
               </div>
               <button
                 onClick={() => setSelectedLead(null)}
-                className="text-xs text-[#6F887A] hover:text-[#D8E5DC] px-2 py-1 border border-[#27453A]"
+                className="text-xs text-[#A6732E] hover:text-[#FFE7B8] px-2 py-1 border border-[#3D2A12]"
               >
                 [ ESC ]
               </button>
             </div>
 
             {leadDetailQ.data.lead.description && (
-              <p className="text-xs text-[#D8E5DC] leading-relaxed bg-[#0F1D18] p-3 border border-[#27453A] rounded-sm">
+              <p className="text-xs text-[#FFE7B8] leading-relaxed bg-[#14110C] p-3 border border-[#3D2A12] rounded-xs">
                 {leadDetailQ.data.lead.description}
               </p>
             )}
 
             {leadDetailQ.data.lead.priority_rationale && (
-              <div className="text-xs text-[#6F887A] bg-[#0F1D18] p-2 border border-[#27453A] rounded-sm">
-                <span className="text-[#FFB84D] font-bold">RATIONALE:</span>{' '}
+              <div className="text-xs text-[#A6732E] bg-[#14110C] p-2 border border-[#3D2A12] rounded-xs">
+                <span className="text-[#FF9E1B] font-bold">RATIONALE:</span>{' '}
                 {leadDetailQ.data.lead.priority_rationale}
               </div>
             )}
 
             {/* Evidence comparison */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="border border-[#27453A] bg-[#0B1713] p-3 rounded-sm space-y-2">
-                <div className="text-[10px] text-[#9FE3B1] uppercase font-bold">
+              <div className="border border-[#3D2A12] bg-[#14110C] p-3 rounded-xs space-y-2">
+                <div className="text-[10px] text-[#34D399] uppercase font-bold">
                   SUPPORTING EVIDENCE ({leadDetailQ.data.lead.supporting_evidence_refs?.length || 0})
                 </div>
                 {(leadDetailQ.data.lead.supporting_evidence_refs || []).length > 0 ? (
                   leadDetailQ.data.lead.supporting_evidence_refs.map((r: any, i: number) => (
                     <div
                       key={i}
-                      className="text-[11px] bg-[#0F1D18] p-2 rounded-sm border border-[#27453A] text-[#6F887A]"
+                      className="text-[11px] bg-[#0D0B08] p-2 rounded-xs border border-[#3D2A12] text-[#A6732E]"
                     >
                       {r.locator && <div>LOCATOR: {r.locator}</div>}
-                      {r.excerpt && <div className="italic text-[#D8E5DC]">"{r.excerpt}"</div>}
+                      {r.excerpt && <div className="italic text-[#FFE7B8]">"{r.excerpt}"</div>}
                       {r.evidence_id && (
-                        <div className="text-[#3C6653]">
+                        <div className="text-[#7A521D]">
                           [EVID #{r.evidence_id.slice(0, 8)}]
                         </div>
                       )}
                     </div>
                   ))
                 ) : (
-                  <div className="text-[11px] text-[#6F887A]">No corroborating links.</div>
+                  <div className="text-[11px] text-[#A6732E]">No corroborating links.</div>
                 )}
               </div>
 
-              <div className="border border-[#E05A52]/40 bg-[#0B1713] p-3 rounded-sm space-y-2">
-                <div className="text-[10px] text-[#E05A52] uppercase font-bold">
+              <div className="border border-[#EF4444]/40 bg-[#14110C] p-3 rounded-xs space-y-2">
+                <div className="text-[10px] text-[#EF4444] uppercase font-bold">
                   CONFLICTING EVIDENCE ({leadDetailQ.data.lead.conflicting_evidence_refs?.length || 0})
                 </div>
                 {(leadDetailQ.data.lead.conflicting_evidence_refs || []).length > 0 ? (
                   leadDetailQ.data.lead.conflicting_evidence_refs.map((r: any, i: number) => (
                     <div
                       key={i}
-                      className="text-[11px] bg-[#E05A52]/10 p-2 rounded-sm border border-[#E05A52]/30 text-[#E05A52]"
+                      className="text-[11px] bg-[#EF4444]/10 p-2 rounded-xs border border-[#EF4444]/30 text-[#EF4444]"
                     >
                       {r.locator && <div>LOCATOR: {r.locator}</div>}
                       {r.excerpt && <div className="italic">"{r.excerpt}"</div>}
                     </div>
                   ))
                 ) : (
-                  <div className="text-[11px] text-[#6F887A]">No conflicting evidence.</div>
+                  <div className="text-[11px] text-[#A6732E]">No conflicting evidence.</div>
                 )}
               </div>
             </div>
@@ -707,12 +702,12 @@ export default function LeadsPage() {
             {/* Linked Gaps & Actions */}
             {leadDetailQ.data.gaps?.length > 0 && (
               <div className="space-y-1.5">
-                <div className="text-[10px] uppercase text-[#6F887A]">LINKED GAPS</div>
+                <div className="text-[10px] uppercase text-[#A6732E]">LINKED GAPS</div>
                 <div className="space-y-1">
                   {leadDetailQ.data.gaps.map((g: any) => (
                     <div
                       key={g.id}
-                      className="text-xs bg-[#0F1D18] border border-[#27453A] p-2 rounded-sm flex items-center justify-between"
+                      className="text-xs bg-[#14110C] border border-[#3D2A12] p-2 rounded-xs flex items-center justify-between"
                     >
                       <span>{g.title}</span>
                       <StatusBadge status={g.status} />
@@ -724,12 +719,12 @@ export default function LeadsPage() {
 
             {leadDetailQ.data.actions?.length > 0 && (
               <div className="space-y-1.5">
-                <div className="text-[10px] uppercase text-[#6F887A]">LINKED ACTIONS</div>
+                <div className="text-[10px] uppercase text-[#A6732E]">LINKED ACTIONS</div>
                 <div className="space-y-1">
                   {leadDetailQ.data.actions.map((a: any) => (
                     <div
                       key={a.id}
-                      className="text-xs bg-[#0F1D18] border border-[#27453A] p-2 rounded-sm flex items-center justify-between"
+                      className="text-xs bg-[#14110C] border border-[#3D2A12] p-2 rounded-xs flex items-center justify-between"
                     >
                       <span>{a.title}</span>
                       <StatusBadge status={a.status} />
@@ -742,20 +737,20 @@ export default function LeadsPage() {
             {/* Review History */}
             {leadDetailQ.data.review_history?.length > 0 && (
               <div className="space-y-1.5">
-                <div className="text-[10px] uppercase text-[#6F887A]">AUDIT TIMELINE</div>
+                <div className="text-[10px] uppercase text-[#A6732E]">AUDIT TIMELINE</div>
                 <div className="space-y-1">
                   {leadDetailQ.data.review_history.map((h: any) => (
                     <div
                       key={h.id}
-                      className="text-xs bg-[#0F1D18] border border-[#27453A]/50 p-2 rounded-sm"
+                      className="text-xs bg-[#14110C] border border-[#3D2A12]/50 p-2 rounded-xs"
                     >
                       <div className="flex items-center justify-between">
                         <StatusBadge status={h.decision} />
-                        <span className="text-[10px] text-[#6F887A]">
+                        <span className="text-[10px] text-[#A6732E]">
                           {h.created_at ? new Date(h.created_at).toLocaleString() : ''}
                         </span>
                       </div>
-                      {h.note && <div className="text-[#D8E5DC] mt-1 text-[11px]">{h.note}</div>}
+                      {h.note && <div className="text-[#FFE7B8] mt-1 text-[11px]">{h.note}</div>}
                     </div>
                   ))}
                 </div>
@@ -763,15 +758,15 @@ export default function LeadsPage() {
             )}
 
             {/* Decision console */}
-            <div className="border-t border-[#27453A] pt-3 space-y-2">
-              <div className="text-[10px] uppercase text-[#6F887A]">
+            <div className="border-t border-[#3D2A12] pt-3 space-y-2">
+              <div className="text-[10px] uppercase text-[#A6732E]">
                 RECORD LEAD STATUS UPDATE
               </div>
               <textarea
                 value={reviewNote}
                 onChange={e => setReviewNote(e.target.value)}
                 placeholder="Analyst progress report or case clearance notes..."
-                className="w-full px-3 py-2 bg-[#0B1713] border border-[#27453A] rounded-sm text-xs text-[#D8E5DC] focus:border-[#FFB84D] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#14110C] border border-[#3D2A12] rounded-xs text-xs text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none placeholder-[#7A521D]"
                 rows={2}
               />
               <div className="flex gap-2 flex-wrap">

@@ -6,6 +6,7 @@ import {
   WorkspaceHeader,
   TerminalButton,
 } from '../components/TerminalComponents';
+import { MapPin, Navigation } from 'lucide-react';
 
 const LEAFLET_CSS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
 const LEAFLET_JS = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
@@ -78,19 +79,19 @@ export default function NetworkMap() {
         const color = reviewColor(e.review_state);
         const icon = L.divIcon({
           className: '',
-          html: `<div style="width:14px;height:14px;border-radius:2px;background:${color};border:1.5px solid #07100D;box-shadow:0 0 6px ${color}88"></div>`,
+          html: `<div style="width:14px;height:14px;border-radius:2px;background:${color};border:1.5px solid #0D0B08;box-shadow:0 0 6px ${color}88"></div>`,
           iconSize: [14, 14],
           iconAnchor: [7, 7],
         });
         L.marker([lat, lon], { icon, title: e.label })
           .addTo(map)
           .bindPopup(
-            `<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;background:#07100D;color:#D8E5DC;padding:6px;border:1px solid #27453A;">
-              <strong style="color:#FFB84D;">${e.label}</strong><br/>
-              <span style="color:#6F887A;">TYPE:</span> ${e.entity_type}<br/>
-              <span style="color:#6F887A;">LAT:</span> ${lat.toFixed(5)}<br/>
-              <span style="color:#6F887A;">LON:</span> ${lon.toFixed(5)}<br/>
-              <span style="color:#6F887A;">REVIEW:</span> ${e.review_state || 'new'}
+            `<div style="font-family:'Courier New',Courier,monospace;font-size:11px;background:#0D0B08;color:#FFBA42;padding:8px;border:1px solid #FF9E1B;border-radius:2px;box-shadow:0 0 10px rgba(255,158,27,0.3);">
+              <strong style="color:#FFE7B8;letter-spacing:0.5px;">${e.label}</strong><br/>
+              <span style="color:#A6732E;">TYPE:</span> ${e.entity_type}<br/>
+              <span style="color:#A6732E;">LAT:</span> ${lat.toFixed(5)}<br/>
+              <span style="color:#A6732E;">LON:</span> ${lon.toFixed(5)}<br/>
+              <span style="color:#A6732E;">REVIEW:</span> ${e.review_state || 'new'}
             </div>`,
           );
       });
@@ -105,14 +106,14 @@ export default function NetworkMap() {
   });
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8.5rem)] font-mono text-[#D8E5DC]">
+    <div className="flex flex-col h-[calc(100vh-8.5rem)] font-mono text-[#FFBA42]">
       <WorkspaceHeader
         code="GEO-INT // 03"
         title="GEOSPATIAL & CELL TOWER NETWORK MAP"
         description="Coordinates and triangulated physical nodes mapped across cell sectors and geolocation tags."
       >
         <div className="flex items-center gap-3">
-          <span className="text-xs text-[#6F887A]">
+          <span className="text-xs text-[#A6732E]">
             {isLoading
               ? '[ RESOLVING GEO-COORDINATES... ]'
               : `${towers.length} POSITIONED / ${entities?.length || 0} TOTAL`}
@@ -123,39 +124,39 @@ export default function NetworkMap() {
         </div>
       </WorkspaceHeader>
 
-      <div className="relative flex-1 bg-[#07100D] border border-[#27453A] rounded-sm overflow-hidden my-2 min-h-0">
+      <div className="relative flex-1 bg-[#0D0B08] border border-[#3D2A12] rounded-xs overflow-hidden my-2 min-h-0">
         {!leafletReady && (
-          <div className="absolute inset-0 flex items-center justify-center z-10 text-xs text-[#FFB84D] bg-[#07100D]/80">
+          <div className="absolute inset-0 flex items-center justify-center z-10 text-xs text-[#FF9E1B] bg-[#0D0B08]/80">
             [ LOADING MAP SATELLITE TILES... ]
           </div>
         )}
         <div ref={mapRef} className="w-full h-full" />
         
         {towers.length === 0 && !isLoading && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-[#0B1713]/90 border border-[#27453A] rounded-xs px-4 py-2 text-xs text-[#6F887A]">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-[#14110C]/90 border border-[#3D2A12] rounded-xs px-4 py-2 text-xs text-[#A6732E]">
             NO GEOLOCATION ATTRIBUTES FOUND FOR CURRENT CASE RECORD SET.
           </div>
         )}
 
-        <div className="absolute top-3 right-3 bg-[#0B1713]/95 border border-[#27453A] rounded-xs p-3 text-[10px] space-y-1.5 shadow-xl max-w-xs">
-          <div className="font-bold text-[#FFB84D] border-b border-[#27453A] pb-1 uppercase tracking-wider">
+        <div className="absolute top-3 right-3 bg-[#14110C]/95 border border-[#3D2A12] rounded-xs p-3 text-[10px] space-y-1.5 shadow-xl max-w-xs">
+          <div className="font-bold text-[#FF9E1B] border-b border-[#3D2A12] pb-1 uppercase tracking-wider">
             SECTOR STATUS
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-xs bg-[#9FE3B1] inline-block border border-[#07100D]"></span>
-            <span className="text-[#D8E5DC]">ACCEPTED</span>
+            <span className="w-2.5 h-2.5 rounded-xs bg-[#34D399] inline-block border border-[#0D0B08]"></span>
+            <span className="text-[#FFE7B8]">ACCEPTED</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-xs bg-[#E05A52] inline-block border border-[#07100D]"></span>
-            <span className="text-[#D8E5DC]">REJECTED</span>
+            <span className="w-2.5 h-2.5 rounded-xs bg-[#EF4444] inline-block border border-[#0D0B08]"></span>
+            <span className="text-[#FFE7B8]">REJECTED</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-xs bg-[#FFB84D] inline-block border border-[#07100D]"></span>
-            <span className="text-[#D8E5DC]">FLAGGED / DISPUTED</span>
+            <span className="w-2.5 h-2.5 rounded-xs bg-[#FF9E1B] inline-block border border-[#0D0B08]"></span>
+            <span className="text-[#FFE7B8]">FLAGGED / DISPUTED</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-xs bg-[#6F887A] inline-block border border-[#07100D]"></span>
-            <span className="text-[#D8E5DC]">NEW / PENDING VERIFICATION</span>
+            <span className="w-2.5 h-2.5 rounded-xs bg-[#A6732E] inline-block border border-[#0D0B08]"></span>
+            <span className="text-[#FFE7B8]">NEW / PENDING VERIFICATION</span>
           </div>
         </div>
       </div>
@@ -165,8 +166,8 @@ export default function NetworkMap() {
 
 function reviewColor(state?: string): string {
   const s = (state || '').toLowerCase();
-  if (s.includes('accept')) return '#9FE3B1';
-  if (s.includes('reject')) return '#E05A52';
-  if (s.includes('flag')) return '#FFB84D';
-  return '#6F887A';
+  if (s.includes('accept')) return '#34D399';
+  if (s.includes('reject')) return '#EF4444';
+  if (s.includes('flag')) return '#FF9E1B';
+  return '#A6732E';
 }

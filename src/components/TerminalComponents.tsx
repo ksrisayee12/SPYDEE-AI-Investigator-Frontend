@@ -23,34 +23,35 @@ export function TerminalPanel({
 }: TerminalPanelProps) {
   const bgClass =
     variant === 'raised'
-      ? 'bg-[#0F1D18]'
+      ? 'bg-[#14110C]'
       : variant === 'highlight'
-      ? 'bg-[#0B1713] border-[#3C6653]'
-      : 'bg-[#0B1713]';
+      ? 'bg-[#0D0B08] border-[#66451B]'
+      : 'bg-[#0D0B08]';
 
   return (
     <div
-      className={`border border-[#27453A] ${bgClass} rounded-sm p-4 relative ${className}`}
+      className={`border border-[#3D2A12] ${bgClass} rounded-xs p-4 relative ${className}`}
       {...props}
     >
       {cornerBrackets && (
         <>
-          <span className="absolute -top-[1px] -left-[1px] w-1.5 h-1.5 border-t-2 border-l-2 border-[#FFB84D]/60 pointer-events-none" />
-          <span className="absolute -top-[1px] -right-[1px] w-1.5 h-1.5 border-t-2 border-r-2 border-[#FFB84D]/60 pointer-events-none" />
-          <span className="absolute -bottom-[1px] -left-[1px] w-1.5 h-1.5 border-b-2 border-l-2 border-[#FFB84D]/60 pointer-events-none" />
-          <span className="absolute -bottom-[1px] -right-[1px] w-1.5 h-1.5 border-b-2 border-r-2 border-[#FFB84D]/60 pointer-events-none" />
+          <span className="absolute -top-[1px] -left-[1px] w-1.5 h-1.5 border-t-2 border-l-2 border-[#FF9E1B] pointer-events-none" />
+          <span className="absolute -top-[1px] -right-[1px] w-1.5 h-1.5 border-t-2 border-r-2 border-[#FF9E1B] pointer-events-none" />
+          <span className="absolute -bottom-[1px] -left-[1px] w-1.5 h-1.5 border-b-2 border-l-2 border-[#FF9E1B] pointer-events-none" />
+          <span className="absolute -bottom-[1px] -right-[1px] w-1.5 h-1.5 border-b-2 border-r-2 border-[#FF9E1B] pointer-events-none" />
         </>
       )}
       {(title || badge || action) && (
-        <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#27453A]/80 text-xs">
+        <div className="flex items-center justify-between pb-3 mb-3 border-b border-[#3D2A12] text-xs">
           <div className="flex items-center gap-2">
             {title && (
-              <span className="font-mono uppercase tracking-wider text-[#D8E5DC] font-medium text-xs">
+              <span className="font-mono uppercase tracking-wider text-[#FFBA42] font-semibold text-xs flex items-center gap-1.5">
+                <span className="text-[#FF9E1B] text-[10px]">▶</span>
                 {title}
               </span>
             )}
             {badge && (
-              <span className="font-mono text-[10px] px-1.5 py-0.5 border border-[#628C73] text-[#9FE3B1] uppercase">
+              <span className="font-mono text-[10px] px-1.5 py-0.5 border border-[#34D399] text-[#34D399] uppercase bg-[#34D399]/5">
                 {badge}
               </span>
             )}
@@ -84,32 +85,32 @@ export function TerminalButton({
       ? 'px-2 py-0.5 text-[10px]'
       : size === 'sm'
       ? 'px-2.5 py-1 text-xs'
-      : 'px-3 py-1.5 text-xs';
+      : 'px-3.5 py-1.5 text-xs';
 
   let variantClasses = '';
   switch (variant) {
     case 'primary':
       variantClasses =
-        'border border-[#FFB84D] text-[#FFB84D] hover:bg-[#FFB84D]/10 active:bg-[#FFB84D]/20';
+        'bg-[#FF9E1B] text-[#080705] font-bold border border-[#FF9E1B] hover:bg-[#FFAE3B] active:bg-[#D97E06] shadow-sm';
       break;
     case 'danger':
       variantClasses =
-        'border border-[#E05A52] text-[#E05A52] hover:bg-[#E05A52]/10 active:bg-[#E05A52]/20';
+        'border border-[#EF4444] text-[#EF4444] bg-[#EF4444]/5 hover:bg-[#EF4444]/15 active:bg-[#EF4444]/25';
       break;
     case 'success':
       variantClasses =
-        'border border-[#9FE3B1] text-[#9FE3B1] hover:bg-[#9FE3B1]/10 active:bg-[#9FE3B1]/20';
+        'border border-[#34D399] text-[#34D399] bg-[#34D399]/5 hover:bg-[#34D399]/15 active:bg-[#34D399]/25';
       break;
     case 'secondary':
     default:
       variantClasses =
-        'border border-[#27453A] text-[#6F887A] hover:border-[#3C6653] hover:text-[#D8E5DC] active:bg-[#27453A]/20';
+        'border border-[#3D2A12] text-[#FFBA42] bg-[#0D0B08] hover:border-[#FF9E1B] hover:text-[#FFE7B8] hover:bg-[#14110C] active:bg-[#1A160F]';
       break;
   }
 
   return (
     <button
-      className={`font-mono uppercase tracking-wider rounded-sm bg-transparent transition-colors inline-flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed ${sizeClasses} ${variantClasses} ${className}`}
+      className={`font-mono uppercase tracking-wider rounded-xs transition-all inline-flex items-center justify-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed ${sizeClasses} ${variantClasses} ${className}`}
       disabled={disabled}
       {...props}
     >
@@ -130,25 +131,25 @@ export function StatusBadge({ status, className = '' }: StatusBadgeProps) {
   if (!status) return null;
   const s = status.toLowerCase();
 
-  let colorClasses = 'border-[#27453A] text-[#6F887A]';
+  let colorClasses = 'border-[#3D2A12] text-[#A6732E]';
 
-  if (s.includes('active') || s.includes('verified') || s.includes('accept') || s.includes('completed') || s.includes('supported') || s.includes('resolved') || s.includes('addressed') || s === 'ready' || s === 'imported' || s === 'observed') {
-    colorClasses = 'border-[#9FE3B1] text-[#9FE3B1]';
+  if (s.includes('active') || s.includes('verified') || s.includes('accept') || s.includes('completed') || s.includes('supported') || s.includes('resolved') || s.includes('addressed') || s === 'ready' || s === 'imported' || s === 'observed' || s === 'linked') {
+    colorClasses = 'border-[#34D399] text-[#34D399] bg-[#34D399]/5';
   } else if (s.includes('inferred') || s.includes('derived') || s.includes('pending') || s.includes('in_progress') || s.includes('uploaded') || s.includes('review') || s.includes('proposed')) {
-    colorClasses = 'border-[#628C73] text-[#628C73]';
+    colorClasses = 'border-[#996515] text-[#FFBA42] bg-[#996515]/10';
   } else if (s.includes('need') || s.includes('warn') || s.includes('stale') || s.includes('flag') || s.includes('open') || s === 'medium' || s === 'high') {
-    colorClasses = 'border-[#FFB84D] text-[#FFB84D]';
+    colorClasses = 'border-[#FF9E1B] text-[#FF9E1B] bg-[#FF9E1B]/10';
   } else if (s.includes('contradict') || s.includes('fail') || s.includes('reject') || s.includes('critical') || s.includes('error')) {
-    colorClasses = 'border-[#E05A52] text-[#E05A52]';
-  } else if (s.includes('synthetic') || s.includes('archived') || s.includes('dismiss')) {
-    colorClasses = 'border-[#3C6653] text-[#6F887A]';
+    colorClasses = 'border-[#EF4444] text-[#EF4444] bg-[#EF4444]/10';
+  } else if (s.includes('synthetic') || s.includes('archived') || s.includes('dismiss') || s === 'new') {
+    colorClasses = 'border-[#3D2A12] text-[#A6732E] bg-[#14110C]';
   }
 
   const formatted = status.toUpperCase().replace(/_/g, ' ');
 
   return (
     <span
-      className={`font-mono text-[10px] px-1.5 py-0.2 inline-block border rounded-sm tracking-wider uppercase bg-transparent ${colorClasses} ${className}`}
+      className={`font-mono text-[10px] px-2 py-0.5 inline-block border rounded-xs tracking-wider uppercase ${colorClasses} ${className}`}
     >
       [ {formatted} ]
     </span>
@@ -174,20 +175,21 @@ export function WorkspaceHeader({
   children,
 }: WorkspaceHeaderProps) {
   return (
-    <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 mb-6 border-b border-[#27453A]">
+    <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 mb-5 border-b border-[#3D2A12]">
       <div>
         {code && (
-          <div className="text-[10px] font-mono text-[#6F887A] uppercase tracking-widest mb-1 flex items-center gap-2">
+          <div className="text-[10px] font-mono text-[#A6732E] uppercase tracking-widest mb-1 flex items-center gap-2">
             <span>{code}</span>
-            <span className="text-[#27453A]">//</span>
-            <span className="text-[#FFB84D]">TERMINAL WORKSPACE</span>
+            <span className="text-[#3D2A12]">//</span>
+            <span className="text-[#FF9E1B]">TERMINAL WORKSPACE</span>
           </div>
         )}
-        <h1 className="text-xl md:text-2xl font-mono uppercase tracking-wide font-semibold text-[#D8E5DC]">
+        <h1 className="text-lg md:text-xl font-mono uppercase tracking-wide font-bold text-[#FFBA42] flex items-center gap-2">
+          <span className="text-[#FF9E1B]">//</span>
           {title}
         </h1>
         {description && (
-          <p className="text-xs font-mono text-[#6F887A] mt-1">{description}</p>
+          <p className="text-xs font-mono text-[#A6732E] mt-1">{description}</p>
         )}
       </div>
       <div className="flex items-center gap-3 flex-wrap">
@@ -205,6 +207,7 @@ interface MetricCellProps {
   label: string;
   value: React.ReactNode;
   sublabel?: string;
+  icon?: React.ReactNode;
   onClick?: () => void;
   highlight?: boolean;
   alert?: boolean;
@@ -214,41 +217,46 @@ export function MetricCell({
   label,
   value,
   sublabel,
+  icon,
   onClick,
   highlight,
   alert,
 }: MetricCellProps) {
   const borderClass = alert
-    ? 'border-[#E05A52]'
+    ? 'border-[#EF4444]'
     : highlight
-    ? 'border-[#FFB84D]'
-    : 'border-[#27453A] hover:border-[#3C6653]';
+    ? 'border-[#FF9E1B]'
+    : 'border-[#3D2A12] hover:border-[#66451B]';
   const textClass = alert
-    ? 'text-[#E05A52]'
+    ? 'text-[#EF4444]'
     : highlight
     ? 'text-[#FFD27A]'
-    : 'text-[#D8E5DC]';
+    : 'text-[#FFBA42]';
 
   const Comp = onClick ? 'button' : 'div';
 
   return (
     <Comp
       onClick={onClick}
-      className={`border ${borderClass} bg-[#0B1713] rounded-sm p-3 text-left transition-colors w-full relative ${
-        onClick ? 'cursor-pointer hover:bg-[#0F1D18]' : ''
+      className={`border ${borderClass} bg-[#0D0B08] rounded-xs p-3 text-left transition-colors w-full relative ${
+        onClick ? 'cursor-pointer hover:bg-[#14110C]' : ''
       }`}
     >
-      <div className="text-[10px] font-mono uppercase tracking-wider text-[#6F887A] mb-1">
-        {label}
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-[10px] font-mono uppercase tracking-wider text-[#A6732E]">
+          {label}
+        </span>
+        {icon && <span className="text-[#A6732E]">{icon}</span>}
       </div>
       <div className={`text-xl md:text-2xl font-mono font-bold ${textClass}`}>
         {value}
       </div>
       {sublabel && (
-        <div className="text-[10px] font-mono text-[#6F887A] mt-1 truncate">
+        <div className="text-[10px] font-mono text-[#A6732E] mt-1 truncate">
           {sublabel}
         </div>
       )}
     </Comp>
   );
 }
+

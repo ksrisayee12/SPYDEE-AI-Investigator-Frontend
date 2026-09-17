@@ -2,16 +2,49 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
+import {
+  Folder,
+  HardDrive,
+  Users,
+  Share2,
+  Map as MapIcon,
+  Clock,
+  Brain,
+  AlertTriangle,
+  Lightbulb,
+  Crosshair,
+  Terminal,
+  FileText,
+  LogOut,
+} from 'lucide-react';
 
 export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [user, setUser] = useState<any>(null);
   const [caseId, setCaseId] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState('');
+
+  // Clock ticker for top bar: TUE 16 SEP 2026 07:42:11
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const days = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+      const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+      const dayName = days[now.getDay()];
+      const day = String(now.getDate()).padStart(2, '0');
+      const month = months[now.getMonth()];
+      const year = now.getFullYear();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const mins = String(now.getMinutes()).padStart(2, '0');
+      const secs = String(now.getSeconds()).padStart(2, '0');
+      setCurrentTime(`${dayName} ${day} ${month} ${year}  ${hours}:${mins}:${secs}`);
+    };
+    updateTime();
+    const timer = setInterval(updateTime, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
-    const stored = localStorage.getItem('spydee_user');
-    if (stored) setUser(JSON.parse(stored));
     const parts = location.pathname.split('/');
     const ci = parts.indexOf('cases');
     if (ci >= 0 && parts[ci + 1]) setCaseId(parts[ci + 1]);
@@ -32,199 +65,186 @@ export default function Layout() {
 
   const navSections = caseId ? [
     {
-      heading: 'CASE CONTROL',
+      heading: '// CASE CONSOLE',
       items: [
-        { label: 'OVERVIEW', path: `/cases/${caseId}` },
-        { label: 'EVIDENCE', path: `/cases/${caseId}/evidence` },
-        { label: 'ENTITIES', path: `/cases/${caseId}/entities` },
-        { label: 'GRAPH', path: `/cases/${caseId}/graph` },
-        { label: 'MAP', path: `/cases/${caseId}/map` },
-        { label: 'TIMELINE', path: `/cases/${caseId}/timeline` },
+        { label: 'CASE OVERVIEW', path: `/cases/${caseId}`, icon: Folder },
+        { label: 'EVIDENCE & SITE', path: `/cases/${caseId}/evidence`, icon: HardDrive },
+        { label: 'ENTITIES', path: `/cases/${caseId}/entities`, icon: Users },
+        { label: 'GRAPH', path: `/cases/${caseId}/graph`, icon: Share2 },
+        { label: 'MAP', path: `/cases/${caseId}/map`, icon: MapIcon },
+        { label: 'TIMELINE', path: `/cases/${caseId}/timeline`, icon: Clock },
       ],
     },
     {
-      heading: 'INTELLIGENCE',
+      heading: '// INTELLIGENCE',
       items: [
-        { label: 'WORKBENCH', path: `/cases/${caseId}/workbench` },
-        { label: 'HYPOTHESES', path: `/cases/${caseId}/hypotheses` },
-        { label: 'CONTRADICTIONS', path: `/cases/${caseId}/contradictions` },
-        { label: 'LEADS / GAPS / ACTIONS', path: `/cases/${caseId}/leads` },
+        { label: 'WORKBENCH', path: `/cases/${caseId}/workbench`, icon: Brain },
+        { label: 'CONTRADICTIONS', path: `/cases/${caseId}/contradictions`, icon: AlertTriangle },
+        { label: 'HYPOTHESES & LEADS', path: `/cases/${caseId}/hypotheses`, icon: Lightbulb },
+        { label: 'LEADS, GAPS & ACTIONS', path: `/cases/${caseId}/leads`, icon: Crosshair },
       ],
     },
     {
-      heading: 'PARTNER TOOLS',
+      heading: '// TOOLS',
       items: [
-        { label: 'COPILOT', path: `/cases/${caseId}/copilot` },
-      ],
-    },
-    {
-      heading: 'OUTPUT',
-      items: [
-        { label: 'REPORTS & AUDIT', path: `/cases/${caseId}/reports` },
+        { label: 'COPILOT', path: `/cases/${caseId}/copilot`, icon: Terminal },
+        { label: 'DOSSIERS & AUDIT', path: `/cases/${caseId}/reports`, icon: FileText },
       ],
     },
   ] : [];
 
-  const caseNav = (navSections || []).flatMap(s => s.items);
-  const currentSection = caseNav.find(n => location.pathname === n.path)?.label || '';
-
   return (
-    <div className="flex h-screen bg-[#07100D] text-[#D8E5DC] font-mono overflow-hidden">
-      {/* Sidebar Command Console */}
-      <aside className="w-64 bg-[#0B1713] text-[#D8E5DC] flex flex-col flex-shrink-0 border-r border-[#27453A]">
-        {/* Terminal Brand Header */}
-        <div className="p-4 border-b border-[#27453A] flex items-center justify-between">
+    <div className="flex flex-col h-screen bg-[#080705] text-[#FFBA42] font-mono overflow-hidden crt-screen">
+      {/* ============================================================== */}
+      {/* TOP GLOBAL INFORMATION BAR                                    */}
+      {/* ============================================================== */}
+      <header className="h-14 bg-[#0A0805] border-b border-[#3D2A12] px-4 flex items-center justify-between flex-shrink-0 z-20">
+        {/* Left: Brand Identity */}
+        <div className="flex items-center">
           <div
-            className="flex items-center gap-2.5 cursor-pointer group"
-            onClick={() => navigate('/')}
+            className="flex items-center gap-2.5 cursor-pointer group select-none"
+            onClick={() => navigate(caseId ? `/cases/${caseId}` : '/cases')}
           >
-            <div className="w-6 h-6 border border-[#FFB84D] flex items-center justify-center text-[#FFB84D] text-xs font-bold bg-[#0F1D18]">
-              ◈
+            {/* Connected Node Logo */}
+            <div className="w-8 h-8 flex items-center justify-center relative">
+              <svg viewBox="0 0 32 32" className="w-7 h-7 text-[#FF9E1B]">
+                <circle cx="9" cy="20" r="3.5" fill="#FF9E1B" />
+                <circle cx="23" cy="11" r="3.5" fill="#FF9E1B" />
+                <circle cx="21" cy="23" r="3" fill="#FF9E1B" />
+                <line x1="9" y1="20" x2="23" y2="11" stroke="#FF9E1B" strokeWidth="2" />
+                <line x1="9" y1="20" x2="21" y2="23" stroke="#FF9E1B" strokeWidth="2" />
+              </svg>
             </div>
+
             <div>
-              <div className="font-bold text-sm text-[#D8E5DC] tracking-widest flex items-center gap-1.5">
-                <span>SPYDEE</span>
-                <span className="text-[10px] text-[#FFB84D] font-normal">// INTEL</span>
+              <div className="font-bold text-lg leading-tight text-[#FF9E1B] tracking-wider">
+                SPYDEE
               </div>
-              <div className="text-[9px] text-[#6F887A] tracking-wider uppercase">Terminal v2.6.4</div>
+              <div className="text-[8px] text-[#A6732E] tracking-widest uppercase">
+                UNSEEN LINKS. SAFER TOMORROWS.
+              </div>
             </div>
           </div>
-          <span className="w-2 h-2 rounded-full bg-[#9FE3B1] animate-pulse" title="System Ready" />
+
+          <div className="h-7 w-[1px] bg-[#3D2A12] mx-4 hidden sm:block" />
+
+          {/* Center subtitle */}
+          <div className="hidden lg:block leading-tight">
+            <div className="text-[11px] font-semibold text-[#FFBA42] tracking-wider uppercase">
+              CRIMINAL NETWORK ANALYSIS SYSTEM
+            </div>
+            <div className="text-[9px] text-[#A6732E] tracking-wide uppercase">
+              MINISTRY OF HOME AFFAIRS // INTELLIGENCE & INVESTIGATION
+            </div>
+          </div>
         </div>
 
-        {/* Command Navigation */}
-        <nav className="flex-1 p-3 space-y-3 overflow-y-auto text-xs">
-          <div>
+        {/* Right: Telemetry & Terminal Badges */}
+        <div className="flex items-center gap-3 text-xs">
+          <div className="hidden md:block text-[11px] text-[#FFBA42] tracking-wider font-medium">
+            {currentTime || '16 SEP 2026 07:42:11'}
+          </div>
+
+          <div className="px-2.5 py-0.5 border border-[#34D399] text-[#34D399] text-[10px] font-bold tracking-wider uppercase bg-[#34D399]/5 green-box-glow">
+            [ SECURE TERMINAL ]
+          </div>
+
+          <div className="px-2 py-0.5 bg-[#FF9E1B] text-[#080705] text-[10px] font-bold tracking-wider uppercase">
+            v1.0.3
+          </div>
+        </div>
+      </header>
+
+      {/* ============================================================== */}
+      {/* MAIN CONTAINER (SIDEBAR + WORKSPACE)                          */}
+      {/* ============================================================== */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left Sidebar */}
+        <aside className="w-60 bg-[#0A0805] text-[#FFBA42] flex flex-col flex-shrink-0 border-r border-[#3D2A12] select-none">
+          {/* Active Case Context / Quick Switch */}
+          <div className="p-3 border-b border-[#3D2A12]">
             <button
               onClick={() => navigate('/cases')}
-              className={`w-full text-left px-3 py-1.5 font-mono text-xs uppercase tracking-wider rounded-sm transition-colors flex items-center justify-between ${
+              className={`w-full text-left px-2.5 py-1.5 rounded-xs text-[11px] tracking-wider uppercase transition-colors flex items-center justify-between ${
                 !caseId
-                  ? 'border-l-2 border-[#FFB84D] bg-[#0F1D18] text-[#FFB84D]'
-                  : 'text-[#6F887A] hover:bg-[#0F1D18] hover:text-[#D8E5DC]'
+                  ? 'bg-[#FF9E1B] text-[#080705] font-bold'
+                  : 'text-[#A6732E] hover:bg-[#14110C] hover:text-[#FFBA42]'
               }`}
             >
-              <span>{!caseId ? '▶' : '>'} CASE REGISTRY</span>
-              <span className="text-[10px] opacity-70">[ALL]</span>
+              <span>{caseId ? 'ALL CASES' : 'CASE REGISTRY'}</span>
+              <span className="text-[10px] opacity-80">[SWITCH]</span>
             </button>
-          </div>
-
-          {caseId && (
-            <div className="px-3 py-2 bg-[#0F1D18] border border-[#27453A] rounded-sm text-[10px] space-y-1">
-              <div className="text-[#6F887A] uppercase tracking-wider text-[9px]">ACTIVE CASE CONTEXT</div>
-              <div className="text-[#FFB84D] font-medium truncate">{caseData?.case_code || caseId}</div>
-              <div className="text-[#D8E5DC] text-[10px] truncate">{caseData?.title}</div>
-            </div>
-          )}
-
-          {navSections.map(section => (
-            <div key={section.heading} className="space-y-0.5">
-              <div className="px-3 py-1 text-[10px] uppercase tracking-widest text-[#6F887A] font-medium">
-                {section.heading}
-              </div>
-              {section.items.map(item => {
-                const isActive = location.pathname === item.path;
-                return (
-                  <button
-                    key={item.path}
-                    onClick={() => navigate(item.path)}
-                    className={`w-full text-left px-3 py-1.5 rounded-sm font-mono text-xs uppercase tracking-wider transition-colors flex items-center gap-2 ${
-                      isActive
-                        ? 'border-l-2 border-[#FFB84D] bg-[#0F1D18] text-[#FFB84D] font-medium'
-                        : 'text-[#6F887A] hover:bg-[#0F1D18] hover:text-[#D8E5DC]'
-                    }`}
-                  >
-                    <span className="text-[10px]">{isActive ? '▶' : '>'}</span>
-                    <span className="truncate">{item.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          ))}
-        </nav>
-
-        {/* Terminal Operator Status Panel */}
-        <div className="p-3 border-t border-[#27453A] bg-[#0B1713] text-[10px] space-y-2">
-          <div className="grid grid-cols-2 gap-2 text-[9px] border border-[#27453A] p-2 bg-[#0F1D18] rounded-sm">
-            <div>
-              <div className="text-[#6F887A]">OPERATOR</div>
-              <div className="text-[#D8E5DC] font-medium truncate">{user?.display_name || user?.username || 'INVESTIGATOR'}</div>
-            </div>
-            <div>
-              <div className="text-[#6F887A]">ROLE</div>
-              <div className="text-[#9FE3B1] uppercase font-medium truncate">{user?.role || 'LEVEL-3'}</div>
-            </div>
-            <div>
-              <div className="text-[#6F887A]">MODE</div>
-              <div className="text-[#FFB84D] uppercase">SYNTHETIC</div>
-            </div>
-            <div>
-              <div className="text-[#6F887A]">SYSTEM</div>
-              <div className="text-[#9FE3B1] uppercase">READY</div>
-            </div>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="w-full text-center px-3 py-1 border border-[#E05A52]/50 text-[#E05A52] hover:bg-[#E05A52]/10 rounded-sm text-[11px] uppercase tracking-wider transition-colors"
-          >
-            [ SIGN OUT TERMINAL ]
-          </button>
-        </div>
-      </aside>
-
-      {/* Main Terminal Viewport */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#07100D]">
-        {/* Top Intelligence Header */}
-        <header className="bg-[#0B1713] border-b border-[#27453A] px-6 py-2.5 flex items-center justify-between flex-shrink-0 z-10">
-          <div className="flex items-center gap-4 min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="text-[#FFB84D] font-bold text-xs uppercase tracking-wider">
-                SPYDEE // INTELLIGENCE TERMINAL
-              </span>
-              <span className="text-[#27453A]">|</span>
-            </div>
-            {caseData ? (
-              <div className="flex items-center gap-2 truncate text-xs">
-                <span className="text-[#D8E5DC] font-medium truncate">{caseData.title}</span>
-                <span className="text-[#6F887A] text-[11px]">
-                  ({caseData.case_code})
-                </span>
-                {currentSection && (
-                  <>
-                    <span className="text-[#27453A]">»</span>
-                    <span className="text-[#FFB84D] text-[11px] font-medium">{currentSection}</span>
-                  </>
-                )}
-              </div>
-            ) : (
-              <div className="text-xs text-[#6F887A] uppercase">
-                {location.pathname === '/cases' ? 'CASE REGISTRY INDEX' : 'SYSTEM OPERATIONAL'}
+            {caseId && (
+              <div className="mt-1.5 px-2.5 py-1 bg-[#0D0B08] border border-[#3D2A12] rounded-xs text-[10px]">
+                <div className="text-[#A6732E] text-[9px] uppercase tracking-wider">CURRENT CASE</div>
+                <div className="text-[#FF9E1B] font-bold truncate">
+                  {caseData?.case_code || caseId}
+                </div>
               </div>
             )}
           </div>
 
-          <div className="flex items-center gap-3 text-[10px] font-mono flex-shrink-0">
-            <span className="hidden sm:inline-flex items-center gap-1.5 text-[#9FE3B1]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#9FE3B1]" />
-              API CONNECTED
-            </span>
-            <span className="hidden md:inline-flex items-center gap-1.5 text-[#628C73]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#628C73]" />
-              DATA INDEX READY
-            </span>
-            <span className="px-2 py-0.5 border border-[#3C6653] text-[#6F887A] rounded-sm font-medium uppercase">
-              PROTOTYPE
-            </span>
-            <span className="px-2 py-0.5 border border-[#FFB84D] text-[#FFB84D] rounded-sm font-medium uppercase bg-[#FFB84D]/5">
-              SYNTHETIC DATA
-            </span>
-          </div>
-        </header>
+          {/* Navigation Sections */}
+          <nav className="flex-1 px-2 py-3 space-y-4 overflow-y-auto">
+            {navSections.map(section => (
+              <div key={section.heading} className="space-y-1">
+                <div className="px-2 text-[10px] uppercase tracking-widest text-[#A6732E] font-bold">
+                  {section.heading}
+                </div>
+                <div className="space-y-0.5">
+                  {section.items.map(item => {
+                    const Icon = item.icon;
+                    const isActive = location.pathname === item.path;
+                    return (
+                      <button
+                        key={item.path}
+                        onClick={() => navigate(item.path)}
+                        className={`w-full text-left px-2.5 py-2 rounded-xs text-xs font-mono uppercase tracking-wider transition-all flex items-center justify-between ${
+                          isActive
+                            ? 'bg-[#FF9E1B] text-[#080705] font-bold shadow-sm'
+                            : 'text-[#FFBA42] hover:bg-[#14110C] hover:text-[#FFE7B8]'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 truncate">
+                          <Icon className={`w-3.5 h-3.5 flex-shrink-0 ${isActive ? 'text-[#080705]' : 'text-[#A6732E]'}`} />
+                          <span className="truncate">{item.label}</span>
+                        </div>
+                        {isActive && (
+                          <span className="text-[10px] font-bold text-[#080705] ml-1">▶</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </nav>
 
-        {/* Content Viewport */}
-        <div className="flex-1 overflow-auto p-4 md:p-6">
-          <Outlet />
-        </div>
-      </main>
+          {/* Bottom Terminal Footer */}
+          <div className="p-3 border-t border-[#3D2A12] bg-[#0A0805] text-[10px] space-y-2">
+            <div className="leading-tight text-[#A6732E] font-mono">
+              <div className="text-[#FF9E1B] font-bold">SPYDEE // v1.0.3</div>
+              <div>INTELLIGENCE DIVISION</div>
+              <div>CLASSIFIED USE ONLY</div>
+            </div>
+
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center gap-1.5 px-2 py-1 border border-[#3D2A12] hover:border-[#EF4444] text-[#A6732E] hover:text-[#EF4444] rounded-xs text-[10px] uppercase tracking-wider transition-colors"
+            >
+              <LogOut className="w-3 h-3" />
+              <span>TERMINAL LOGOUT</span>
+            </button>
+          </div>
+        </aside>
+
+        {/* Main Content Workspace */}
+        <main className="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#080705]">
+          <div className="flex-1 overflow-auto p-4 md:p-6">
+            <Outlet />
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

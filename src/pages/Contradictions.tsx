@@ -8,6 +8,7 @@ import {
   TerminalButton,
   StatusBadge,
 } from '../components/TerminalComponents';
+import { AlertTriangle, ShieldAlert } from 'lucide-react';
 
 export default function Contradictions() {
   const { caseId } = useParams<{ caseId: string }>();
@@ -76,7 +77,7 @@ export default function Contradictions() {
   });
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 font-mono text-[#D8E5DC]">
+    <div className="max-w-6xl mx-auto space-y-6 font-mono text-[#FFBA42]">
       <WorkspaceHeader
         code="INTEGRITY // 04"
         title="CONTRADICTION CONTROL CONSOLE"
@@ -86,7 +87,7 @@ export default function Contradictions() {
           <select
             value={statusFilter}
             onChange={e => setStatusFilter(e.target.value)}
-            className="px-3 py-1.5 bg-[#0F1D18] border border-[#27453A] rounded-sm text-xs text-[#D8E5DC] focus:border-[#FFB84D] focus:outline-none"
+            className="px-3 py-1.5 bg-[#14110C] border border-[#3D2A12] rounded-xs text-xs text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none"
           >
             <option value="">ALL STATUSES</option>
             <option value="open">STATUS: OPEN</option>
@@ -108,40 +109,40 @@ export default function Contradictions() {
         <TerminalPanel title="RECORD COMPETING / CONFLICTING EVIDENCE" variant="raised">
           <div className="space-y-3">
             <div>
-              <label className="block text-[10px] text-[#6F887A] uppercase tracking-wider mb-1">
+              <label className="block text-[10px] text-[#A6732E] uppercase tracking-wider mb-1">
                 CONTRADICTION TITLE / HYPOTHESIS TARGET
               </label>
               <input
                 value={createForm.title}
                 onChange={e => setCreateForm({ ...createForm, title: e.target.value })}
                 placeholder="e.g. Alibi Conflict: Suspect claims home presence vs cell tower ping"
-                className="w-full px-3 py-2 bg-[#0B1713] border border-[#27453A] rounded-sm text-xs text-[#D8E5DC] focus:border-[#FFB84D] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#14110C] border border-[#3D2A12] rounded-xs text-xs text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none placeholder-[#7A521D]"
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[10px] text-[#FFB84D] uppercase tracking-wider mb-1">
+                <label className="block text-[10px] text-[#FF9E1B] uppercase tracking-wider mb-1">
                   CLAIM A (PROPOSITION 01)
                 </label>
                 <textarea
                   value={createForm.statementA}
                   onChange={e => setCreateForm({ ...createForm, statementA: e.target.value })}
                   placeholder="Suspect witness transcript claims residence in Mumbai all night..."
-                  className="w-full px-3 py-2 bg-[#0B1713] border border-[#27453A] rounded-sm text-xs text-[#D8E5DC] focus:border-[#FFB84D] focus:outline-none"
+                  className="w-full px-3 py-2 bg-[#14110C] border border-[#3D2A12] rounded-xs text-xs text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none placeholder-[#7A521D]"
                   rows={2}
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] text-[#E05A52] uppercase tracking-wider mb-1">
+                <label className="block text-[10px] text-[#EF4444] uppercase tracking-wider mb-1">
                   CLAIM B (MUTUALLY EXCLUSIVE PROPOSITION 02)
                 </label>
                 <textarea
                   value={createForm.statementB}
                   onChange={e => setCreateForm({ ...createForm, statementB: e.target.value })}
                   placeholder="Tower CDR extraction places device near port facility at 02:41 IST..."
-                  className="w-full px-3 py-2 bg-[#0B1713] border border-[#27453A] rounded-sm text-xs text-[#D8E5DC] focus:border-[#FFB84D] focus:outline-none"
+                  className="w-full px-3 py-2 bg-[#14110C] border border-[#3D2A12] rounded-xs text-xs text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none placeholder-[#7A521D]"
                   rows={2}
                 />
               </div>
@@ -149,18 +150,18 @@ export default function Contradictions() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label className="block text-[10px] text-[#6F887A] uppercase tracking-wider mb-1">
+                <label className="block text-[10px] text-[#A6732E] uppercase tracking-wider mb-1">
                   TEMPORAL CONTEXT
                 </label>
                 <input
                   value={createForm.time_context}
                   onChange={e => setCreateForm({ ...createForm, time_context: e.target.value })}
                   placeholder="e.g. 2026-03-12 02:00-04:00 IST"
-                  className="w-full px-3 py-2 bg-[#0B1713] border border-[#27453A] rounded-sm text-xs text-[#D8E5DC] focus:border-[#FFB84D] focus:outline-none"
+                  className="w-full px-3 py-2 bg-[#14110C] border border-[#3D2A12] rounded-xs text-xs text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none placeholder-[#7A521D]"
                 />
               </div>
               <div>
-                <label className="block text-[10px] text-[#6F887A] uppercase tracking-wider mb-1">
+                <label className="block text-[10px] text-[#A6732E] uppercase tracking-wider mb-1">
                   DETECTION PIPELINE / SOURCE
                 </label>
                 <input
@@ -169,20 +170,20 @@ export default function Contradictions() {
                     setCreateForm({ ...createForm, detection_method: e.target.value })
                   }
                   placeholder="e.g. telecom_cross_validation_v2"
-                  className="w-full px-3 py-2 bg-[#0B1713] border border-[#27453A] rounded-sm text-xs text-[#D8E5DC] focus:border-[#FFB84D] focus:outline-none"
+                  className="w-full px-3 py-2 bg-[#14110C] border border-[#3D2A12] rounded-xs text-xs text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none placeholder-[#7A521D]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[10px] text-[#6F887A] uppercase tracking-wider mb-1">
+              <label className="block text-[10px] text-[#A6732E] uppercase tracking-wider mb-1">
                 ANALYST EXPLANATION / IMPACT ON CASE
               </label>
               <textarea
                 value={createForm.explanation}
                 onChange={e => setCreateForm({ ...createForm, explanation: e.target.value })}
                 placeholder="Details of physical impossibility or falsified log..."
-                className="w-full px-3 py-2 bg-[#0B1713] border border-[#27453A] rounded-sm text-xs text-[#D8E5DC] focus:border-[#FFB84D] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#14110C] border border-[#3D2A12] rounded-xs text-xs text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none placeholder-[#7A521D]"
                 rows={2}
               />
             </div>
@@ -210,7 +211,7 @@ export default function Contradictions() {
 
       {/* Contradictions grid */}
       {isLoading ? (
-        <div className="text-center py-16 border border-[#27453A] bg-[#0B1713] rounded-sm text-[#6F887A] text-xs">
+        <div className="text-center py-16 border border-[#3D2A12] bg-[#0D0B08] rounded-xs text-[#A6732E] text-xs">
           FETCHING CROSS-EXAMINATION CONFLICT REGISTRY...
         </div>
       ) : contradictions && contradictions.length > 0 ? (
@@ -219,12 +220,12 @@ export default function Contradictions() {
             <div
               key={c.id}
               onClick={() => setSelected(c)}
-              className={`border bg-[#0B1713] hover:border-[#FFB84D] p-4 rounded-sm cursor-pointer transition-colors space-y-3 group ${
-                selected?.id === c.id ? 'border-[#FFB84D] bg-[#0F1D18]' : 'border-[#27453A]'
+              className={`border bg-[#0D0B08] hover:border-[#FF9E1B] p-4 rounded-xs cursor-pointer transition-colors space-y-3 group ${
+                selected?.id === c.id ? 'border-[#FF9E1B] bg-[#14110C]' : 'border-[#3D2A12]'
               }`}
             >
               <div className="flex items-start justify-between gap-2">
-                <span className="font-semibold text-xs text-[#D8E5DC] group-hover:text-[#FFB84D] transition-colors">
+                <span className="font-semibold text-xs text-[#FFBA42] group-hover:text-[#FFE7B8] transition-colors">
                   {c.title}
                 </span>
                 <StatusBadge status={c.status} />
@@ -234,10 +235,10 @@ export default function Contradictions() {
                 {(c.statements || []).map((s: any, i: number) => (
                   <div
                     key={i}
-                    className={`p-2 rounded-sm border text-[11px] leading-relaxed ${
+                    className={`p-2 rounded-xs border text-[11px] leading-relaxed ${
                       i === 0
-                        ? 'border-[#FFB84D]/30 bg-[#FFB84D]/5 text-[#FFD27A]'
-                        : 'border-[#E05A52]/30 bg-[#E05A52]/5 text-[#E05A52]'
+                        ? 'border-[#FF9E1B]/30 bg-[#FF9E1B]/5 text-[#FFE7B8]'
+                        : 'border-[#EF4444]/30 bg-[#EF4444]/5 text-[#EF4444]'
                     }`}
                   >
                     <span className="font-bold mr-1">
@@ -249,9 +250,9 @@ export default function Contradictions() {
               </div>
 
               {c.detection_method && (
-                <div className="text-[10px] text-[#6F887A] flex items-center justify-between pt-1 border-t border-[#27453A]/40">
+                <div className="text-[10px] text-[#A6732E] flex items-center justify-between pt-1 border-t border-[#3D2A12]/40">
                   <span>METHOD: {c.detection_method}</span>
-                  <span className="text-[#FFB84D] group-hover:translate-x-1 transition-transform">
+                  <span className="text-[#FF9E1B] group-hover:translate-x-1 transition-transform">
                     INSPECT ▶
                   </span>
                 </div>
@@ -260,7 +261,7 @@ export default function Contradictions() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-16 border border-[#27453A] bg-[#0B1713] rounded-sm text-[#6F887A] text-xs">
+        <div className="text-center py-16 border border-[#3D2A12] bg-[#0D0B08] rounded-xs text-[#A6732E] text-xs">
           NO ACTIVE CONTRADICTIONS RECORDED FOR THIS INVESTIGATION.
         </div>
       )}
@@ -272,13 +273,13 @@ export default function Contradictions() {
           onClick={() => setSelected(null)}
         >
           <div
-            className="border border-[#27453A] bg-[#07100D] rounded-sm max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 space-y-4 shadow-2xl relative"
+            className="border border-[#FF9E1B] bg-[#0D0B08] rounded-xs max-w-2xl w-full max-h-[85vh] overflow-y-auto p-6 space-y-4 shadow-2xl relative amber-box-glow"
             onClick={e => e.stopPropagation()}
           >
-            <div className="flex items-start justify-between border-b border-[#27453A] pb-3">
+            <div className="flex items-start justify-between border-b border-[#3D2A12] pb-3">
               <div>
-                <div className="text-sm font-bold text-[#D8E5DC] flex items-center gap-2">
-                  <span className="text-[#FFB84D]">CONFLICT //</span>
+                <div className="text-sm font-bold text-[#FFBA42] flex items-center gap-2">
+                  <span className="text-[#FF9E1B]">CONFLICT //</span>
                   <span>{detail.contradiction.title}</span>
                 </div>
                 <div className="mt-1">
@@ -287,7 +288,7 @@ export default function Contradictions() {
               </div>
               <button
                 onClick={() => setSelected(null)}
-                className="text-xs text-[#6F887A] hover:text-[#D8E5DC] px-2 py-1 border border-[#27453A]"
+                className="text-xs text-[#A6732E] hover:text-[#FFE7B8] px-2 py-1 border border-[#3D2A12]"
               >
                 [ ESC ]
               </button>
@@ -298,25 +299,25 @@ export default function Contradictions() {
               {(detail.contradiction.statements || []).map((s: any, i: number) => (
                 <div
                   key={i}
-                  className={`p-3 border rounded-sm text-xs space-y-1 ${
+                  className={`p-3 border rounded-xs text-xs space-y-1 ${
                     i === 0
-                      ? 'border-[#FFB84D]/40 bg-[#0F1D18]'
-                      : 'border-[#E05A52]/40 bg-[#0B1713]'
+                      ? 'border-[#FF9E1B]/40 bg-[#14110C]'
+                      : 'border-[#EF4444]/40 bg-[#14110C]'
                   }`}
                 >
-                  <div className="text-[10px] uppercase font-bold text-[#6F887A]">
+                  <div className="text-[10px] uppercase font-bold text-[#A6732E]">
                     {i === 0 ? 'MUTUALLY EXCLUSIVE ASSERTION 01' : 'MUTUALLY EXCLUSIVE ASSERTION 02'}
                   </div>
-                  <div className="text-[#D8E5DC] font-medium leading-relaxed">"{s.text}"</div>
+                  <div className="text-[#FFE7B8] font-medium leading-relaxed">"{s.text}"</div>
                   {s.source_ref && (s.source_ref.excerpt || s.source_ref.locator) && (
-                    <div className="text-[10px] text-[#6F887A] pt-1">
+                    <div className="text-[10px] text-[#A6732E] pt-1">
                       {s.source_ref.locator && <span>LOCATOR: {s.source_ref.locator}</span>}
                       {s.source_ref.locator && s.source_ref.excerpt && <span> · </span>}
                       {s.source_ref.excerpt && (
-                        <span className="italic text-[#9FE3B1]">"{s.source_ref.excerpt}"</span>
+                        <span className="italic text-[#FF9E1B]">"{s.source_ref.excerpt}"</span>
                       )}
                       {s.source_ref.evidence_id && (
-                        <span className="text-[#3C6653]">
+                        <span className="text-[#7A521D]">
                           {' '}
                           [EVID #{s.source_ref.evidence_id.slice(0, 8)}]
                         </span>
@@ -328,15 +329,15 @@ export default function Contradictions() {
             </div>
 
             {detail.contradiction.time_context && (
-              <div className="text-xs text-[#6F887A] bg-[#0F1D18] p-2 border border-[#27453A] rounded-sm">
-                <span className="text-[#FFB84D] font-bold">TIME FRAME:</span>{' '}
+              <div className="text-xs text-[#A6732E] bg-[#14110C] p-2 border border-[#3D2A12] rounded-xs">
+                <span className="text-[#FF9E1B] font-bold">TIME FRAME:</span>{' '}
                 {detail.contradiction.time_context}
               </div>
             )}
 
             {detail.contradiction.explanation && (
-              <div className="text-xs text-[#D8E5DC] bg-[#0F1D18] p-2 border border-[#27453A] rounded-sm leading-relaxed">
-                <span className="text-[#FFB84D] font-bold">REASONING:</span>{' '}
+              <div className="text-xs text-[#FFE7B8] bg-[#14110C] p-2 border border-[#3D2A12] rounded-xs leading-relaxed">
+                <span className="text-[#FF9E1B] font-bold">REASONING:</span>{' '}
                 {detail.contradiction.explanation}
               </div>
             )}
@@ -344,22 +345,22 @@ export default function Contradictions() {
             {/* Review History */}
             {detail.review_history?.length > 0 && (
               <div className="space-y-1.5">
-                <div className="text-[10px] uppercase text-[#6F887A]">
+                <div className="text-[10px] uppercase text-[#A6732E]">
                   AUDIT LOG // DECISION TIMELINE
                 </div>
                 <div className="space-y-1">
                   {detail.review_history.map((h: any) => (
                     <div
                       key={h.id}
-                      className="text-xs bg-[#0F1D18] border border-[#27453A]/50 p-2 rounded-sm"
+                      className="text-xs bg-[#14110C] border border-[#3D2A12]/50 p-2 rounded-xs"
                     >
                       <div className="flex items-center justify-between">
                         <StatusBadge status={h.decision} />
-                        <span className="text-[10px] text-[#6F887A]">
+                        <span className="text-[10px] text-[#A6732E]">
                           {h.created_at ? new Date(h.created_at).toLocaleString() : ''}
                         </span>
                       </div>
-                      {h.note && <div className="text-[#D8E5DC] mt-1 text-[11px]">{h.note}</div>}
+                      {h.note && <div className="text-[#FFE7B8] mt-1 text-[11px]">{h.note}</div>}
                     </div>
                   ))}
                 </div>
@@ -367,15 +368,15 @@ export default function Contradictions() {
             )}
 
             {/* Apply Decision Console */}
-            <div className="border-t border-[#27453A] pt-3 space-y-2">
-              <div className="text-[10px] uppercase text-[#6F887A]">
+            <div className="border-t border-[#3D2A12] pt-3 space-y-2">
+              <div className="text-[10px] uppercase text-[#A6732E]">
                 RESOLVE CONTRADICTION STATUS
               </div>
               <textarea
                 value={reviewNote}
                 onChange={e => setReviewNote(e.target.value)}
                 placeholder="Corroborating record or rationale for dismissal..."
-                className="w-full px-3 py-2 bg-[#0B1713] border border-[#27453A] rounded-sm text-xs text-[#D8E5DC] focus:border-[#FFB84D] focus:outline-none"
+                className="w-full px-3 py-2 bg-[#14110C] border border-[#3D2A12] rounded-xs text-xs text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none placeholder-[#7A521D]"
                 rows={2}
               />
               <div className="flex gap-2 flex-wrap">

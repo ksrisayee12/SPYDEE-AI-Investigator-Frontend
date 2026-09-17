@@ -26,54 +26,54 @@ export default function Login() {
     }
   };
 
-  const setDemo = (u: string, p: string) => {
+  const setCredentials = (u: string, p: string) => {
     setUsername(u);
     setPassword(p);
   };
 
   return (
-    <div className="min-h-screen bg-[#07100D] flex items-center justify-center p-4 font-mono text-[#D8E5DC]">
+    <div className="min-h-screen bg-[#080705] flex items-center justify-center p-4 font-mono text-[#FFBA42] crt-screen">
       <div className="w-full max-w-md space-y-4">
         {/* Terminal Header Banner */}
         <div className="text-center space-y-1">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 border border-[#27453A] bg-[#0B1713] text-[11px] text-[#6F887A] rounded-sm uppercase tracking-wider mb-2">
-            <span className="w-2 h-2 rounded-full bg-[#9FE3B1] animate-pulse" />
-            GOVERNMENT INTELLIGENCE GATEWAY // PORT 3000
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 border border-[#3D2A12] bg-[#0D0B08] text-[11px] text-[#A6732E] rounded-xs uppercase tracking-wider mb-2">
+            <span className="w-2 h-2 rounded-full bg-[#FF9E1B] animate-pulse" />
+            SECURE INTELLIGENCE GATEWAY // PORT 3000
           </div>
-          <h1 className="text-3xl font-bold tracking-widest text-[#FFB84D] flex items-center justify-center gap-2">
+          <h1 className="text-3xl font-bold tracking-widest text-[#FF9E1B] flex items-center justify-center gap-2 amber-glow">
             <span>◈</span> SPYDEE
           </h1>
-          <p className="text-xs text-[#6F887A] uppercase tracking-wider">
-            Operational Investigation & Intelligence Terminal
+          <p className="text-xs text-[#A6732E] uppercase tracking-wider">
+            Criminal Network Analysis & Intelligence Terminal
           </p>
         </div>
 
         {/* Authentication Panel */}
-        <TerminalPanel title="SECURE ACCESS // CREDENTIAL CHALLENGE">
+        <TerminalPanel title="SECURE ACCESS // CREDENTIAL CHALLENGE" variant="raised">
           <form onSubmit={handleSubmit} className="space-y-4 pt-1">
             <div>
-              <label className="block text-xs uppercase tracking-wider text-[#6F887A] mb-1">
+              <label className="block text-xs uppercase tracking-wider text-[#A6732E] mb-1">
                 OPERATOR IDENTIFIER [USERNAME]
               </label>
               <input
                 type="text"
                 value={username}
                 onChange={e => setUsername(e.target.value)}
-                className="w-full px-3 py-2 bg-[#0F1D18] border border-[#27453A] rounded-sm text-sm text-[#D8E5DC] focus:border-[#FFB84D] focus:outline-none placeholder-[#3C6653]"
+                className="w-full px-3 py-2 bg-[#14110C] border border-[#3D2A12] rounded-xs text-sm text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none placeholder-[#7A521D]"
                 placeholder="e.g. investigator"
                 autoComplete="username"
                 required
               />
             </div>
             <div>
-              <label className="block text-xs uppercase tracking-wider text-[#6F887A] mb-1">
+              <label className="block text-xs uppercase tracking-wider text-[#A6732E] mb-1">
                 SECURITY ACCESS KEY [PASSWORD]
               </label>
               <input
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className="w-full px-3 py-2 bg-[#0F1D18] border border-[#27453A] rounded-sm text-sm text-[#D8E5DC] focus:border-[#FFB84D] focus:outline-none placeholder-[#3C6653]"
+                className="w-full px-3 py-2 bg-[#14110C] border border-[#3D2A12] rounded-xs text-sm text-[#FFE7B8] focus:border-[#FF9E1B] focus:outline-none placeholder-[#7A521D]"
                 placeholder="••••••••••••"
                 autoComplete="current-password"
                 required
@@ -81,7 +81,7 @@ export default function Login() {
             </div>
 
             {error && (
-              <div className="p-2.5 border border-[#E05A52] bg-[#E05A52]/10 text-[#E05A52] text-xs rounded-sm">
+              <div className="p-2.5 border border-[#EF4444] bg-[#EF4444]/10 text-[#EF4444] text-xs rounded-xs">
                 ⚠ {error}
               </div>
             )}
@@ -96,42 +96,42 @@ export default function Login() {
             </TerminalButton>
           </form>
 
-          {/* Preset Demo Operators */}
-          <div className="mt-5 pt-4 border-t border-[#27453A] text-xs">
-            <div className="text-[10px] text-[#6F887A] uppercase tracking-wider mb-2">
-              QUICK AUTHENTICATION PROFILES (SYNTHETIC ENVIRONMENT):
+          {/* Quick Operator Profiles for local dev/testing */}
+          <div className="mt-5 pt-4 border-t border-[#3D2A12] text-xs">
+            <div className="text-[10px] text-[#A6732E] uppercase tracking-wider mb-2">
+              QUICK CREDENTIAL SELECTION:
             </div>
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
-                onClick={() => setDemo('investigator', 'invest123')}
-                className="px-2 py-1.5 border border-[#27453A] bg-[#0F1D18] hover:border-[#FFB84D] hover:text-[#FFB84D] text-[10px] text-left rounded-sm transition-colors"
+                onClick={() => setCredentials('investigator', 'invest123')}
+                className="px-2 py-1.5 border border-[#3D2A12] bg-[#14110C] hover:border-[#FF9E1B] hover:text-[#FFBA42] text-[10px] text-left rounded-xs transition-colors"
               >
-                <div className="text-[#9FE3B1] font-bold">INVESTIGATOR</div>
-                <div className="text-[#6F887A] text-[9px]">Level-3 Access</div>
+                <div className="text-[#FF9E1B] font-bold">INVESTIGATOR</div>
+                <div className="text-[#A6732E] text-[9px]">Field Level</div>
               </button>
               <button
                 type="button"
-                onClick={() => setDemo('admin', 'admin123')}
-                className="px-2 py-1.5 border border-[#27453A] bg-[#0F1D18] hover:border-[#FFB84D] hover:text-[#FFB84D] text-[10px] text-left rounded-sm transition-colors"
+                onClick={() => setCredentials('admin', 'admin123')}
+                className="px-2 py-1.5 border border-[#3D2A12] bg-[#14110C] hover:border-[#FF9E1B] hover:text-[#FFBA42] text-[10px] text-left rounded-xs transition-colors"
               >
-                <div className="text-[#FFB84D] font-bold">ADMIN</div>
-                <div className="text-[#6F887A] text-[9px]">Full Clearance</div>
+                <div className="text-[#34D399] font-bold">ADMIN</div>
+                <div className="text-[#A6732E] text-[9px]">Full Clearance</div>
               </button>
               <button
                 type="button"
-                onClick={() => setDemo('supervisor', 'super123')}
-                className="px-2 py-1.5 border border-[#27453A] bg-[#0F1D18] hover:border-[#FFB84D] hover:text-[#FFB84D] text-[10px] text-left rounded-sm transition-colors"
+                onClick={() => setCredentials('supervisor', 'super123')}
+                className="px-2 py-1.5 border border-[#3D2A12] bg-[#14110C] hover:border-[#FF9E1B] hover:text-[#FFBA42] text-[10px] text-left rounded-xs transition-colors"
               >
-                <div className="text-[#D8E5DC] font-bold">SUPERVISOR</div>
-                <div className="text-[#6F887A] text-[9px]">Audit Authority</div>
+                <div className="text-[#FFBA42] font-bold">SUPERVISOR</div>
+                <div className="text-[#A6732E] text-[9px]">Audit Authority</div>
               </button>
             </div>
           </div>
         </TerminalPanel>
 
-        <div className="text-center text-[10px] text-[#6F887A] tracking-wider uppercase">
-          PROTECTED UNDER CLASSIFIED DATA CLEARANCE PROTOCOLS // DO NOT DISCLOSE
+        <div className="text-center text-[10px] text-[#A6732E] tracking-wider uppercase">
+          PROTECTED UNDER CLASSIFIED INTELLIGENCE PROTOCOLS // RESTRICTED ACCESS
         </div>
       </div>
     </div>
